@@ -1,0 +1,200 @@
+/* 口诀标签样式 */
+.formula-tag {
+  cursor: pointer;
+  padding: 4px 8px;
+  background-color: #cfe2ff;
+  color: #0d6efd;
+  border-radius: 4px;
+  margin-right: 8px;
+  transition: all 0.2s;
+}
+
+.formula-tag:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* 模态框样式 */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.close-btn {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.formula-table {
+  margin-top: 15px;
+}
+
+.formula-row {
+  display: flex;
+  margin-bottom: 2px;
+}
+
+.formula-item {
+  width: 60px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #333;
+  margin-right: 2px;
+  font-size: 14px;
+}
+
+/* 除法样式 */
+.division-bar {
+  position: relative;
+  display: inline-block;
+  padding-left: 24px;
+}
+
+.division-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 2px;
+  height: 100%;
+  background: #000;
+}
+
+.division-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: calc(150%);
+  height: 2px;
+  background: #000;
+}
+
+.carry-digit {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.divisor {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  line-height: 1;
+}
+
+.full-dividend {
+  position: relative;
+  z-index: 10;
+}
+
+.group-2 {
+  margin-left: 0.5rem;
+}
+
+.group-3 {
+  margin-left: 1rem;
+}
+
+.group-4 {
+  margin-left: 1.5rem;
+}
+
+.partial-product-1 {
+  margin-left: calc(40px * 1.5);
+}
+
+.partial-product-2 {
+  margin-left: calc(40px * -0.5);
+}
+
+.partial-product-3 {
+  margin-left: calc(40px * -2.5);
+}
+
+.partial-product-4 {
+  margin-left: calc(40px * -4.5);
+}
+
+.partial-product-5 {
+  margin-left: 40px;
+}
+
+.partial-product-1,
+.partial-product-2,
+.partial-product-3,
+.partial-product-4,
+.partial-product-5 {
+  letter-spacing: 25px;
+}
+
+#vertical {
+  text-align: center;
+}
+
+.multiplicand-digit {
+  display: inline-block;
+  width: 40px;
+  text-align: right;
+  position: relative;
+}
+
+.multiplier-digit {
+  display: inline-block;
+  width: 40px;
+  text-align: right;
+  position: relative;
+}
+
+.multiplication-vertical .carry {
+  position: absolute;
+  left: 5px;
+  bottom: -50px;
+  color: #ff0000;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.multiplication-line {
+  /* 横线样式 */
+  border-bottom: 2px solid #000;
+  margin: 8px 0;
+  width: 400px;
+  margin-left: 40px;
+}
+
+.partial-product {
+  margin-left: 80px;
+}
+
+.partial-product.second {
+  margin-left: 40px;
+}
+
+.multiplication-result {
+  margin-left: calc(40px * 0.6);
+  font-weight: bold;
+  letter-spacing: 25px;
+}
