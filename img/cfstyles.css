@@ -1,0 +1,1576 @@
+/* 基础颜色变量 - 儿童友好型配色 */
+:root {
+    --primary-color: #64b5f6;
+    --secondary-color: #ff80ab;
+    --accent-color: #ffd54f;
+    --background-color: #fefcff;
+    --text-color: #424242;
+    --success-color: #04cf30;
+    --error-color: #ff8fa3;
+    --addition-color: #64b5f6;
+    --subtraction-color: #ff80ab;
+    --multiplication-color: #026919;
+    --division-color: #ffd54f;
+    --single-digit-width: 40px;
+}
+
+/* 全局样式 */
+body {
+    margin: 0;
+    background-color: var(--background-color);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    font-family: 'Nunito', cursive, sans-serif;
+}
+
+/* 被加数（augend）和加数（addend）的共同样式（核心：右对齐） */
+.addition-vertical .augend,
+.addition-vertical .addend {
+    text-align: right;
+    font-family: "Caveat", cursive;
+    font-size: 1.8rem;
+    line-height: 1.8;
+    padding: 4px 0;
+    letter-spacing: 5px;
+    width: 100%;
+}
+
+/* 加数（addend）的单独样式（处理带"+"号的情况） */
+.addition-vertical .addend {
+    padding-left: 15px;
+}
+
+.addition-vertical .addend .plus {
+    color: var(--addition-color);
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.addition-vertical {
+    position: relative;
+}
+
+.addition-vertical .add-carry {
+    position: absolute;
+    right: calc(3rem + (var(--position) * 2.5rem));
+    top: calc(35% + 1rem);
+    color: #ff4d4f;
+    font-weight: bold;
+    font-size: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s ease;
+}
+
+.addition-vertical .add-carry.visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: bounce 0.5s;
+}
+
+/* 确保数字容器有足够空间容纳进位标记 */
+.addend-digit {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.addition-vertical {
+    font-family: "Caveat", cursive;
+    font-size: 1.8rem;
+    line-height: 1.8;
+    display: inline-block;
+    position: relative;
+    padding: 20px;
+
+    border-radius: 16px;
+
+}
+
+.addend-digit {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.addend-digit:hover {
+    transform: scale(1.1);
+}
+
+.addition-vertical .carry {
+    position: absolute;
+    left: calc(-25px - (var(--position) * 40px));
+    bottom: calc(50% + 10px);
+    color: #ff4d4f;
+    font-weight: bold;
+    font-size: 1rem;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.addition-line {
+    border-bottom: 3px dashed var(--addition-color);
+    margin: 8px 0;
+    width: 100%;
+    margin-left: auto;
+    transition: width 0.3s ease;
+}
+
+.addition-result {
+    font-weight: bold;
+    letter-spacing: 10px;
+    color: var(--addition-color);
+    text-align: right;
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+/* 减法样式 */
+.subtraction-vertical {
+    font-family: "Caveat", cursive;
+    font-size: 1.8rem;
+    line-height: 1.8;
+    display: inline-block;
+    position: relative;
+    padding-left: 20px;
+
+    border-radius: 16px;
+
+    padding: 20px;
+}
+
+/* 被减数和减数样式 */
+.minuend-digit,
+.subtrahend-digit {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.minuend-digit:hover,
+.subtrahend-digit:hover {
+    transform: scale(1.1);
+}
+
+/* 减法借位标记 */
+.subtraction-vertical .borrow {
+    position: absolute;
+    left: calc(7rem - (var(--position) * 2.5rem));
+
+    color: var(--subtraction-color);
+    font-weight: bold;
+    font-size: 1rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.5s ease;
+    animation: pulse 1s infinite;
+}
+
+.subtraction-vertical .borrow.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 减法横线样式 */
+.subtraction-line {
+    border-bottom: 3px dashed var(--subtraction-color);
+    margin: 8px 0;
+    width: 0;
+    margin-left: auto;
+    margin-right: auto;
+    transition: width 0.3s ease;
+}
+
+.subtraction-result {
+    /* 移除原有的margin-left和letter-spacing */
+    margin-left: 0.5rem;
+    /* 清除固定偏移 */
+    letter-spacing: normal;
+    /* 恢复正常字间距 */
+
+    /* 添加右对齐相关样式 */
+    display: inline-block;
+    /* 保持 inline 特性同时支持宽度设置 */
+    text-align: right;
+    /* 文字右对齐 */
+    width: 100%;
+    /* 与容器同宽，确保对齐基准一致 */
+    letter-spacing: 20px;
+    /* 保持右侧内边距 */
+    box-sizing: border-box;
+    /* 确保padding不影响宽度计算 */
+
+    /* 保留原有其他样式 */
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.3s;
+    color: var(--subtraction-color);
+}
+
+.subtraction-result.visible {
+    opacity: 1;
+    animation: fadeIn 0.5s;
+}
+
+/* 乘法核心样式 */
+.multiplication-vertical {
+    font-family: "Caveat", cursive;
+    font-size: 1.8rem;
+    line-height: 1.8;
+    display: inline-block;
+    position: relative;
+    padding-left: 20px;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.multiplicand-digit,
+.multiplier-digit {
+    display: inline-block;
+    width: 40px;
+    text-align: right;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.multiplicand-digit:hover,
+.multiplier-digit:hover {
+    transform: scale(1.1);
+}
+
+.multiplication-vertical .carry {
+    position: absolute;
+    left: calc(5px - (var(--position) * 40px));
+    bottom: -50px;
+    color: var(--multiplication-color);
+    font-weight: bold;
+    font-size: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s ease;
+    animation: pulse 1s infinite;
+}
+
+.multiplication-vertical .carry.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 乘法横线样式 */
+.multiplication-line {
+    border-bottom: 3px dashed var(--multiplication-color);
+    margin: 8px 0;
+    width: 0;
+    margin-left: auto;
+    margin-right: auto;
+    transition: width 0.3s ease;
+}
+
+/* 动态部分积样式 */
+.partial-product {
+    margin-left: calc(var(--single-digit-width) * var(--digit-offset) * -2);
+    letter-spacing: calc(var(--single-digit-width) * 0.6);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.5s ease;
+}
+
+.partial-product.visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeIn 0.5s;
+}
+
+/* 乘法结果样式 */
+.multiplication-result {
+    margin-left: calc(var(--result-offset) * 1px);
+    font-weight: bold;
+    letter-spacing: 25px;
+    padding-right: 20px;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.3s;
+    color: var(--multiplication-color);
+}
+
+.multiplication-result.visible {
+    opacity: 1;
+    animation: fadeIn 0.5s;
+}
+
+/* 除法样式 */
+.division-bar {
+    position: relative;
+    display: inline-block;
+    padding-left: 24px;
+
+    border-radius: 16px;
+
+    padding: 20px;
+}
+
+.division-bar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12px;
+    width: 2px;
+    height: 100%;
+    background: var(--division-color);
+}
+
+.division-bar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12px;
+    width: calc(150%);
+    height: 2px;
+    background: var(--division-color);
+}
+
+.carry-digit {
+    color: var(--division-color);
+    font-weight: bold;
+    animation: pulse 1s infinite;
+}
+
+.divisor {
+    position: absolute;
+    left: -20px;
+    top: 0;
+    line-height: 1;
+}
+
+.full-dividend {
+    position: relative;
+    z-index: 10;
+}
+
+.group-2 {
+    margin-left: 0.5rem;
+}
+
+.group-3 {
+    margin-left: 1rem;
+}
+
+.group-4 {
+    margin-left: 1.5rem;
+}
+
+.group-5 {
+    margin-left: 2rem;
+}
+
+.group-6 {
+    margin-left: 2.5rem;
+}
+
+/* 公式标签 */
+.formula-tag {
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.formula-tag.multiplication {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+
+.formula-tag.multiplication:hover {
+    background-color: #1890ff;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.formula-tag.division {
+    background-color: #f6ffed;
+    color: #52c41a;
+}
+
+.formula-tag.division:hover {
+    background-color: #52c41a;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.formula-tag.donate {
+    background-color: #fff1f0;
+    color: #ff4d4f;
+}
+
+.formula-tag.donate:hover {
+    background-color: #ff4d4f;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.formula-tag.disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.formula-tag.disabled:hover {
+    background-color: #f5f5f5;
+    color: #999;
+}
+
+/* 运算类型选择样式优化 */
+.operation-option {
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+    /* 预留边框位置 */
+}
+
+/* 选中状态样式 */
+.operation-option.selected {
+    border-color: currentColor;
+    /* 使用图标的颜色作为边框色 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* 增加阴影突出 */
+    transform: translateY(-2px);
+    /* 轻微上浮效果 */
+}
+
+/* 选中状态添加标记 */
+.operation-option.selected::after {
+    content: "✓";
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 悬停效果增强 */
+.operation-option:hover:not(.selected) {
+    border-color: #e2e8f0;
+    background-color: #f8fafc;
+}
+
+/* 为不同运算类型定制选中背景色 */
+.operation-option[data-operation="add"].selected {
+    background-color: #fff7ed;
+}
+
+.operation-option[data-operation="subtract"].selected {
+    background-color: #fff7ed;
+}
+
+.operation-option[data-operation="multiply"].selected {
+    background-color: #eff6ff;
+}
+
+.operation-option[data-operation="divide"].selected {
+    background-color: #f0fdf4;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 24px;
+    border-radius: 20px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    transform: translateY(-20px);
+    opacity: 0;
+    min-width: 300px;
+    max-width: 1000px;
+}
+
+@media (min-width: 768px) {
+    .modal-content {
+        min-width: 700px;
+    }
+
+    .formula-table {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    .formula-item {
+        height: 45px;
+        font-size: 16px;
+    }
+}
+
+.modal.active .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.close-btn {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 8px;
+    color: #666;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    color: #ff4d4f;
+    transform: rotate(90deg);
+}
+
+/* 公式表格 */
+.formula-table {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+}
+
+.formula-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: 1px solid transparent;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.formula-item:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.formula-item.multiplication {
+    background-color: #f0f7ff;
+    border-left: 3px solid #1890ff;
+}
+
+.formula-item.multiplication:hover {
+    background-color: #e6f7ff;
+    border-color: #91d5ff;
+}
+
+.formula-item.division {
+    background-color: #f6ffed;
+    border-left: 3px solid #52c41a;
+}
+
+.formula-item.division:hover {
+    background-color: #e6f7ff;
+    border-color: #b7eb8f;
+}
+
+.formula-item .icon {
+    margin-right: 6px;
+    font-size: 12px;
+}
+
+/* 捐助相关样式 */
+.donate-container {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.donate-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff4d4f;
+    margin-bottom: 20px;
+}
+
+.donate-description {
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.payment-methods {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.payment-method {
+    text-align: center;
+}
+
+.payment-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+.payment-method:hover .payment-icon {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.payment-name {
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.qrcode-container {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 12px;
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.qrcode-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9fafb;
+    color: #999;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.qrcode-placeholder::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, #eee 25%, transparent 25%),
+        linear-gradient(-45deg, #eee 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #eee 75%),
+        linear-gradient(-45deg, transparent 75%, #eee 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    opacity: 0.5;
+}
+
+.alipay .payment-icon {
+    color: #1677ff;
+}
+
+.wechat .payment-icon {
+    color: #07c160;
+}
+
+.donate-thanks {
+    margin-top: 30px;
+    color: #ff7a45;
+    font-weight: 500;
+}
+
+/* 其他样式 */
+#vertical {
+    text-align: center;
+    margin: 0 auto;
+    max-width: 90%;
+    padding: 0 10px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 10px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-title i {
+    font-size: 22px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.multiplication-title i {
+    color: #1890ff;
+}
+
+.division-title i {
+    color: #52c41a;
+}
+
+.donate-title-modal i {
+    color: #ff4d4f;
+}
+
+/* 按钮样式 */
+#calcBtn {
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    box-shadow: 0 4px 0px #c25e84;
+    border-radius: 12px;
+}
+
+#calcBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0px #c25e84;
+}
+
+#calcBtn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0px #c25e84;
+}
+
+#calcBtn.disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#calcBtn.disabled:hover {
+    background-color: #94a3b8;
+}
+
+/* 输入框样式 */
+input[type="number"] {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+input[type="number"]:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(255, 213, 79, 0.2);
+    outline: none;
+    transform: scale(1.02);
+}
+
+input[type="number"].disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* 结果区域 */
+#result {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* 推理过程样式 */
+#explanation {
+    background-color: #fff3e0;
+    padding: 1rem;
+    border-radius: 16px;
+    border-left: 4px solid var(--accent-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+#explanation h3 {
+    color: #e67e22;
+}
+
+#explanation li {
+    transition: all 0.2s ease;
+}
+
+#explanation li:hover {
+    color: #e67e22;
+    transform: translateX(3px);
+}
+
+/* 选择框样式 */
+select#operator {
+    color: var(--primary-color);
+    font-weight: bold;
+    padding: 0 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+}
+
+select#operator.disabled {
+    color: #999;
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+/* 小学生提示模块 */
+.student-note {
+    background-color: #fff8e6;
+    border-left: 4px solid #faad14;
+    padding: 12px 16px;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.student-note i {
+    color: #faad14;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.student-note p {
+    margin: 0;
+    color: #854d27;
+    font-size: 0.95rem;
+}
+
+/* 知识点提示 */
+.knowledge-tip {
+    background-color: #e6f7ff;
+    border-left: 4px solid #1890ff;
+    padding: 10px 14px;
+    margin: 1rem 0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    animation: slideIn 0.5s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.knowledge-tip h4 {
+    margin: 0 0 5px 0;
+    color: #1890ff;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.knowledge-tip p {
+    margin: 0;
+    color: #233863;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 年级选择器 */
+.grade-selector {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.grade-selector label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+.grade-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.grade-option {
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.grade-option:hover {
+    background-color: #e2e8f0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.grade-option.selected {
+    color: white;
+    border-color: currentColor;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.grade-option.selected::after {
+    content: "✨";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    opacity: 1;
+}
+
+/* 模式选择 */
+.mode-selector {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.mode-option {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+/* 分步操作区 */
+.step-controls {
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.step-btn {
+    padding: 0.5rem 1.2rem;
+    border-radius: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 3px 0px #4a90e2;
+}
+
+.step-btn:hover {
+    background-color: #4a90e2;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0px #3070b3;
+}
+
+.step-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0px #3070b3;
+}
+
+.step-btn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 手动输入区 */
+.manual-input {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.manual-input label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.manual-input input {
+    width: 100px;
+    padding: 0.5rem;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+}
+
+.manual-input .feedback {
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.feedback.correct {
+    color: #10b981;
+    animation: bounce 0.5s;
+}
+
+.feedback.incorrect {
+    color: #ef4444;
+}
+
+/* 练习题生成 */
+.exercise-generator {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 16px;
+
+}
+
+.exercise-header {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #15803d;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.exercise-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.exercise-setting {
+    flex: 1;
+    min-width: 200px;
+}
+
+.exercise-setting label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #365314;
+}
+
+.exercise-setting select,
+.exercise-setting input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 12px;
+    border: 1px solid #a3e635;
+}
+
+.exercises-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.exercise-item {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.exercise-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-question {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.exercise-input {
+    width: 80px;
+    padding: 0.3rem;
+    text-align: center;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s;
+}
+
+.exercise-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(255, 213, 79, 0.2);
+}
+
+.exercise-feedback {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* 右下角浮动提示框 */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+    animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100px) rotate(10deg);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0) rotate(0);
+        opacity: 1;
+    }
+}
+
+.toast-notification.info {
+    background-color: #3b82f6;
+}
+
+.toast-notification.warning {
+    background-color: #f59e0b;
+}
+
+.toast-notification.success {
+    background-color: #10b981;
+    animation: slideIn 0.5s, bounce 0.5s 0.3s;
+}
+
+.toast-notification.error {
+    background-color: #ef4444;
+}
+
+.toast-notification i {
+    font-size: 1.2rem;
+}
+
+/* 自定义导航栏样式 */
+.custom-nav {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    background-color: white;
+
+    z-index: 100;
+    margin: 0;
+    padding: 0;
+}
+
+/* 导航内容容器 */
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* 导航标题 */
+.nav-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.nav-title span {
+    font-size: 1rem;
+    margin-left: 10px;
+}
+
+/* 导航按钮容器 */
+.nav-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+/* 帮助按钮样式 */
+.help-btn {
+    padding: 6px 10px;
+    color: var(--primary-color);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.help-btn:hover {
+    color: #4a90e2;
+    transform: rotate(10deg);
+}
+
+/* 捐助按钮样式 */
+.donate-btn {
+    padding: 6px 10px;
+    color: var(--secondary-color);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.donate-btn:hover {
+    color: #c25e84;
+    transform: scale(1.2);
+}
+
+/* 帮助模态框样式 */
+.help-content {
+    padding: 10px 0;
+}
+
+.help-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.help-section:last-child {
+    border-bottom: none;
+    margin-bottom: 15px;
+    padding-bottom: 0;
+}
+
+.help-section h4 {
+    color: #165dff;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-section p {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 0;
+    padding-left: 28px;
+}
+
+.help-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.help-steps li {
+    position: relative;
+    padding: 8px 0 8px 45px;
+    margin-bottom: 8px;
+    color: #4b5563;
+    line-height: 1.5;
+    transition: all 0.2s ease;
+}
+
+.help-steps li:hover {
+    background-color: #f0f9ff;
+    border-radius: 6px;
+    padding-left: 48px;
+}
+
+.step-number {
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 30px;
+    height: 30px;
+    background-color: #165dff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.help-tips {
+    background-color: #fff8e6;
+    border-left: 4px solid #faad14;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #854d27;
+}
+
+.help-tips i {
+    color: #faad14;
+    font-size: 1.2rem;
+}
+
+/* 年级选择器新样式 */
+.grade-selector {
+    margin-bottom: 1rem;
+}
+
+.grade-badge {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.hover-lift {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* 选中状态样式 */
+.grade-option.selected {
+    border-color: currentColor;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 年级信息区域 */
+#grade-info {
+    transition: all 0.3s ease;
+}
+
+/* 模式选择器样式优化 */
+.mode-selector {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.mode-selector-label {
+    color: #475569;
+    font-weight: 500;
+}
+
+.mode-options {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.mode-option-wrapper {
+    flex: 1;
+    min-width: 150px;
+}
+
+.mode-option-label {
+    width: 100%;
+    border-color: #cbd5e1;
+    background-color: white;
+    border-radius: 12px;
+}
+
+/* 选中状态样式 */
+.mode-option-wrapper input:checked+.mode-option-label {
+    border-color: var(--primary-color);
+    background-color: #f0f9ff;
+    font-weight: 500;
+}
+
+/* 鼠标悬停效果 */
+.mode-option-label:hover {
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+    .mode-options {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .mode-option-label {
+        padding: 0.8rem 1rem;
+    }
+
+    .multiplication-vertical {
+        font-size: 1.5rem;
+    }
+
+    .multiplicand-digit,
+    .multiplier-digit {
+        width: 30px;
+    }
+
+    .formula-table {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+
+    .input-container {
+        width: 40% !important;
+    }
+
+    .qrcode-container {
+        width: 160px;
+        height: 160px;
+    }
+
+    .help-section h4 {
+        font-size: 1rem;
+    }
+
+    .help-steps li {
+        padding-left: 40px;
+        font-size: 0.95rem;
+    }
+
+    .step-number {
+        width: 26px;
+        height: 26px;
+        font-size: 0.8rem;
+    }
+}
+
+/* 练习题按钮容器样式 */
+.exercise-buttons {
+    display: flex;
+    gap: 1rem;
+    /* 按钮之间的间距 */
+    margin: 1rem 0;
+    /* 上下外边距 */
+    justify-content: center;
+    /* 居中对齐 */
+}
+
+/* 保持按钮原有尺寸，可根据需要调整 */
+.exercise-buttons .step-btn {
+    flex: 0 0 auto;
+    /* 不自动拉伸 */
+}
+
+/* 运算符模拟按钮样式：和原有运算类型选择保持一致 */
+.operator-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.operator-btn {
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+/* 选中状态：复用原有选中边框样式 */
+.operator-btn.border-primary {
+    border-color: var(--primary-color);
+    background-color: rgba(100, 181, 246, 0.1);
+}
+
+/* 禁用状态：和原有除法按钮样式统一 */
+.operator-btn.cursor-not-allowed {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 在styles.css中添加 */
+.operation-option.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.operation-option.selected {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
