@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "name": "国画工笔风格",
+    "features": "线条细腻、设色浓艳",
+    "scene": "国潮文创",
+    "thumbnails": [
+      "./国画工笔风格/1.png",
+      "./国画工笔风格/2.png",
+      "./国画工笔风格/3.png",
+      "./国画工笔风格/4.png"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "国画写意风格",
+    "features": "水墨晕染、笔法简练",
+    "scene": "茶文化海报",
+    "thumbnails": [
+      "https://picsum.photos/seed/xieyi1/800/600",
+      "https://picsum.photos/seed/xieyi2/800/600",
+      "https://picsum.photos/seed/xieyi3/800/600",
+      "https://picsum.photos/seed/xieyi4/800/600"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "古典写实油画",
+    "features": "光影细腻、色彩厚重",
+    "scene": "艺术展览",
+    "thumbnails": [
+      "https://picsum.photos/seed/realism1/800/600",
+      "https://picsum.photos/seed/realism2/800/600",
+      "https://picsum.photos/seed/realism3/800/600",
+      "https://picsum.photos/seed/realism4/800/600"
+    ]
+  },
+  {
+    "id": 4,
+    "name": "印象派油画",
+    "features": "光影朦胧、笔触松散",
+    "scene": "文艺海报",
+    "thumbnails": [
+      "https://picsum.photos/seed/impression1/800/600",
+      "https://picsum.photos/seed/impression2/800/600",
+      "https://picsum.photos/seed/impression3/800/600",
+      "https://picsum.photos/seed/impression4/800/600"
+    ]
+  },
+  {
+    "id": 5,
+    "name": "抽象表现主义",
+    "features": "泼洒肌理、色彩奔放",
+    "scene": "现代艺术馆",
+    "thumbnails": [
+      "https://picsum.photos/seed/abstract1/800/600",
+      "https://picsum.photos/seed/abstract2/800/600",
+      "https://picsum.photos/seed/abstract3/800/600",
+      "https://picsum.photos/seed/abstract4/800/600"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "浮世绘风格",
+    "features": "平面构图、高饱和色块",
+    "scene": "日料店装饰",
+    "thumbnails": [
+      "https://picsum.photos/seed/ukiyoe1/800/600",
+      "https://picsum.photos/seed/ukiyoe2/800/600",
+      "https://picsum.photos/seed/ukiyoe3/800/600",
+      "https://picsum.photos/seed/ukiyoe4/800/600"
+    ]
+  }
+]
