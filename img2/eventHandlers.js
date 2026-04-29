@@ -1,7 +1,27 @@
-import { getDom } from './dom.js';
-import { getState, setMultiSelectMode, clearMultiSelected, addColor, deleteColors, setSelectedColorId, setActiveGroupId, addGroup, updateGroup, deleteGroup, setMultiSelectedIds, setPendingImportData, applyImport } from './store.js';
-import { copyText, showToast } from './colorUtils.js';
-import { openColorModal, confirmOperate } from './modals.js';
+import { getDom } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/dom.js";
+import {
+  getState,
+  setMultiSelectMode,
+  clearMultiSelected,
+  addColor,
+  deleteColors,
+  setSelectedColorId,
+  setActiveGroupId,
+  addGroup,
+  updateGroup,
+  deleteGroup,
+  setMultiSelectedIds,
+  setPendingImportData,
+  applyImport,
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/store.js";
+import {
+  copyText,
+  showToast,
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/colorUtils.js";
+import {
+  openColorModal,
+  confirmOperate,
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/modals.js";
 
 export function registerEventHandlers() {
     const dom = getDom();
