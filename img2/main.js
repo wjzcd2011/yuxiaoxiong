@@ -1,9 +1,13 @@
-import { loadFromStorage, saveToStorage, subscribe } from "./store.js";
-import { initDomCache } from "./dom.js";
-import { loadColorNames } from "./colorUtils.js";
-import { renderAll } from "./render.js";
-import { registerEventHandlers } from "./eventHandlers.js";
-import { bindModalButtons } from "./modals.js";
+import {
+  loadFromStorage,
+  saveToStorage,
+  subscribe,
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/store.js";
+import { initDomCache } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/dom.js";
+import { loadColorNames } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/colorUtils.js";
+import { renderAll } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/render.js";
+import { registerEventHandlers } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/eventHandlers.js";
+import { bindModalButtons } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/modals.js";
 import { bindImageModalEvents } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/image.js";
 
 async function bootstrap() {
