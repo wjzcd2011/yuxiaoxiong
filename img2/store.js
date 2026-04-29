@@ -5,6 +5,11 @@ let colors = [
   { id: "c2", name: "玫瑰粉", hex: "#ec4899", groupId: "default", order: 1 },
   { id: "c3", name: "翠绿色", hex: "#10b981", groupId: "default", order: 2 },
   { id: "c4", name: "暖橙色", hex: "#f97316", groupId: "default", order: 3 },
+  { id: "c5", name: "香芋紫", hex: "#e9d5ff", groupId: "default", order: 4 },
+  { id: "c6", name: "朱砂", hex: "#a82621", groupId: "default", order: 5 },
+  { id: "c7", name: "莓果红", hex: "#ff477e", groupId: "default", order: 6 },
+  { id: "c8", name: "浅柔红", hex: "#ff8888", groupId: "default", order: 7 },
+  { id: "c9", name: "牡丹粉", hex: "#f48fb1", groupId: "default", order: 8 },
 ];
 let activeGroupId = "default";
 let selectedColorId = null;
