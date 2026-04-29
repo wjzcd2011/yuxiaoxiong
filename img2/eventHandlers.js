@@ -98,7 +98,7 @@ export function registerEventHandlers() {
         const mode = dom.importMergeBtn.classList.contains('active') ? 'merge' : 'replace';
         applyImport(mode);
         dom.importModeModal.style.display = 'none';
-        import('./render.js').then(({ renderAll }) => renderAll());
+        import('https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/render.js').then(({ renderAll }) => renderAll());
         showToast(mode === 'merge' ? '合并导入成功' : '覆盖导入成功');
     };
     dom.importCancelBtn.onclick = () => { dom.importModeModal.style.display = 'none'; setPendingImportData(null); };
