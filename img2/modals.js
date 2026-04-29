@@ -1,6 +1,23 @@
-import { getDom } from './dom.js';
-import { getState, addColor, updateColor, deleteGroup, setActiveGroupId, setSelectedColorId, setCurrentFormat, setActiveSchemeTab } from './store.js';
-import { getColorName, copyText, showToast, formatColorByType, generateTintShade, shadeLevels, setCurrentFormat as setColorUtilsFormat } from './colorUtils.js';
+import { getDom } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/dom.js";
+import {
+  getState,
+  addColor,
+  updateColor,
+  deleteGroup,
+  setActiveGroupId,
+  setSelectedColorId,
+  setCurrentFormat,
+  setActiveSchemeTab,
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/store.js";
+import {
+  getColorName,
+  copyText,
+  showToast,
+  formatColorByType,
+  generateTintShade,
+  shadeLevels,
+  setCurrentFormat as setColorUtilsFormat,
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/colorUtils.js";
 
 let editColorId = null;
 let confirmCallback = null;
