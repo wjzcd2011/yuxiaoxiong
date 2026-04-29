@@ -89,7 +89,7 @@ export function bindImageModalEvents() {
             addColor({ name, hex, groupId: activeGroupId, order: Date.now()+idx });
         });
         dom.imagePickModal.style.display = 'none';
-        import('./render.js').then(({renderAll})=>renderAll());
+        import('https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/render.js').then(({renderAll})=>renderAll());
         showToast(`已添加 ${selectedExtractedIndices.size} 个颜色`);
     };
 
