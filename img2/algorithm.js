@@ -1,4 +1,4 @@
-import { hexToRgb, rgbToHex, hexToHsl } from './colorUtils.js';
+import { hexToRgb, rgbToHex, hexToHsl } from 'https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/colorUtils.js';
 
 export function medianCut(pixels, numColors) {
     if (pixels.length===0 || numColors<=0) return [];
