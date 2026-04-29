@@ -137,7 +137,7 @@ export function bindModalButtons() {
         if (editColorId) updateColor(editColorId, { name, hex, groupId: gid });
         else addColor({ name, hex, groupId: gid, order: Date.now() });
         dom.colorModal.style.display = 'none';
-        import('./render.js').then(({ renderAll }) => renderAll());
+        import('https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/render.js').then(({ renderAll }) => renderAll());
         showToast(editColorId ? `已更新「${name}」` : `已添加「${name}」`);
     };
 
