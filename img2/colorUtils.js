@@ -7,7 +7,7 @@ const BUILTIN_COLOR_NAMES = {
 
 export async function loadColorNames() {
     try {
-        const resp = await fetch('colorNames.json');
+        const resp = await fetch('https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/colorUtils.json');
         if (resp.ok) colorNames = await resp.json();
         else colorNames = BUILTIN_COLOR_NAMES;
     } catch { colorNames = BUILTIN_COLOR_NAMES; }
