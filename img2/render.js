@@ -13,8 +13,8 @@ import {
   updateGroup,
   deleteGroup,
   deleteColor,
-} from "./store.js";
-import { getDom } from "./dom.js";
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/store.js";
+import { getDom } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/dom.js";
 import {
   getColorName,
   hexToHsl,
@@ -29,12 +29,12 @@ import {
   interpolateColor,
   copyText,
   showToast,
-} from "./colorUtils.js";
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/colorUtils.js";
 import {
   openShadeExportModal,
   openColorModal,
   confirmOperate,
-} from "./modals.js";
+} from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img2/modals.js";
 
 let gradientResizeHandler = null;
 
@@ -50,12 +50,14 @@ export function renderGroups() {
             <span class="group-name-label">${g.name}</span>
             <div style="display:flex;gap:4px;align-items:center">
                 <span class="group-count">${cnt}</span>
-                <span class="rename-group" data-id="${g.id
-      }" title="重命名"><i class="fas fa-pen"></i></span>
-                ${g.id !== "default"
-        ? `<span class="del-group" data-id="${g.id}"><i class="fas fa-trash-alt"></i></span>`
-        : ""
-      }
+                <span class="rename-group" data-id="${
+                  g.id
+                }" title="重命名"><i class="fas fa-pen"></i></span>
+                ${
+                  g.id !== "default"
+                    ? `<span class="del-group" data-id="${g.id}"><i class="fas fa-trash-alt"></i></span>`
+                    : ""
+                }
             </div>
         `;
     item.addEventListener("click", (e) => {
@@ -110,8 +112,9 @@ function makeColorCard(c) {
   const isSelected = selectedColorId === c.id && !isMultiSelectMode;
   const isMultiSel = multiSelectedIds.has(c.id);
   const card = document.createElement("div");
-  card.className = `color-card ${isSelected ? "selected" : ""} ${isMultiSel ? "multi-selected" : ""
-    }`;
+  card.className = `color-card ${isSelected ? "selected" : ""} ${
+    isMultiSel ? "multi-selected" : ""
+  }`;
   card.dataset.id = c.id;
   card.dataset.hex = c.hex;
   card.innerHTML = `
@@ -120,12 +123,15 @@ function makeColorCard(c) {
             <div class="color-name">${c.name || "未命名颜色"}</div>
             <div class="color-hex">${c.hex}</div>
             <div class="card-actions">
-                <button class="copy-btn-sm" data-hex="${c.hex
-    }"><i class="fas fa-copy"></i> 复制</button>
-                <button class="edit-btn" data-id="${c.id
-    }"><i class="fas fa-edit"></i></button>
-                <button class="del-btn" data-id="${c.id
-    }"><i class="fas fa-trash"></i></button>
+                <button class="copy-btn-sm" data-hex="${
+                  c.hex
+                }"><i class="fas fa-copy"></i> 复制</button>
+                <button class="edit-btn" data-id="${
+                  c.id
+                }"><i class="fas fa-edit"></i></button>
+                <button class="del-btn" data-id="${
+                  c.id
+                }"><i class="fas fa-trash"></i></button>
             </div>
         </div>
     `;
@@ -263,28 +269,34 @@ export function renderGradientPanel() {
         <div class="gradient-area"><canvas id="gradientCanvas" width="800" height="72"></canvas></div>
         <div class="color-readout">
             <div class="readout-swatch" id="readoutSwatch" style="background:${baseHex}"></div>
-            <div class="readout-info"><div class="readout-label">当前选中颜色 (${currentFormatItem.name
-    })</div><div class="readout-value" id="currentColorValue">${initialDisplayValue}</div></div>
+            <div class="readout-info"><div class="readout-label">当前选中颜色 (${
+              currentFormatItem.name
+            })</div><div class="readout-value" id="currentColorValue">${initialDisplayValue}</div></div>
             <div class="format-wrap"><select class="format-select" id="formatSelect">${formatList
-      .map(
-        (f) =>
-          `<option value="${f.key}" ${currentFormat === f.key ? "selected" : ""
-          }>${f.name}</option>`
-      )
-      .join("")}</select></div>
+              .map(
+                (f) =>
+                  `<option value="${f.key}" ${
+                    currentFormat === f.key ? "selected" : ""
+                  }>${f.name}</option>`
+              )
+              .join("")}</select></div>
             <button class="copy-readout-btn" id="copyFormatBtn"><i class="fas fa-copy"></i> 复制</button>
         </div>
         <div class="contrast-panel"><div class="panel-title"><span>WCAG 无障碍对比度</span></div>
             <div class="contrast-row"><div class="contrast-card"><div>白色背景</div><div class="contrast-value">${ratioWhite.toFixed(
-        2
-      )} : 1</div><div><span class="contrast-tag ${wl.aa ? "tag-pass" : "tag-fail"
-    }">AA ${wl.aa ? "合规" : "不通过"}</span><span class="contrast-tag ${wl.aaa ? "tag-pass" : "tag-warn"
-    }">AAA ${wl.aaa ? "合规" : "不通过"}</span></div></div>
+              2
+            )} : 1</div><div><span class="contrast-tag ${
+    wl.aa ? "tag-pass" : "tag-fail"
+  }">AA ${wl.aa ? "合规" : "不通过"}</span><span class="contrast-tag ${
+    wl.aaa ? "tag-pass" : "tag-warn"
+  }">AAA ${wl.aaa ? "合规" : "不通过"}</span></div></div>
             <div class="contrast-card"><div>黑色背景</div><div class="contrast-value">${ratioBlack.toFixed(
-      2
-    )} : 1</div><div><span class="contrast-tag ${bl.aa ? "tag-pass" : "tag-fail"
-    }">AA ${bl.aa ? "合规" : "不通过"}</span><span class="contrast-tag ${bl.aaa ? "tag-pass" : "tag-warn"
-    }">AAA ${bl.aaa ? "合规" : "不通过"}</span></div></div></div></div>
+              2
+            )} : 1</div><div><span class="contrast-tag ${
+    bl.aa ? "tag-pass" : "tag-fail"
+  }">AA ${bl.aa ? "合规" : "不通过"}</span><span class="contrast-tag ${
+    bl.aaa ? "tag-pass" : "tag-warn"
+  }">AAA ${bl.aaa ? "合规" : "不通过"}</span></div></div></div></div>
         <div class="shade-panel"><div class="panel-title"><span>色阶 / Tints & Shades</span><div><button class="btn btn-ghost btn-sm" id="exportShadeBtn">导出代码</button><button class="btn btn-ghost btn-sm" id="addAllShadeBtn">一键全部添加</button></div></div>${shadeHtml}</div>
     `;
 
@@ -415,27 +427,34 @@ export function renderSchemePanel() {
     rows = "",
     currentSchemeColors = [];
   for (const [key, cfg] of Object.entries(schemeConfigs)) {
-    tabs += `<button class="scheme-tab ${activeSchemeTab === key ? "active" : ""
-      }" data-tab="${key}">${cfg.name}</button>`;
+    tabs += `<button class="scheme-tab ${
+      activeSchemeTab === key ? "active" : ""
+    }" data-tab="${key}">${cfg.name}</button>`;
     const swatches = cfg.offsets.map((off) =>
       hslToHex((baseHsl.h + off + 360) % 360, baseHsl.s, baseHsl.l)
     );
     if (activeSchemeTab === key) currentSchemeColors = swatches;
-    rows += `<div class="scheme-row ${activeSchemeTab === key ? "active" : ""
-      }" data-row="${key}"><div class="scheme-desc">${cfg.desc
-      }</div><div class="scheme-swatches">${swatches
-        .map((hex) => {
-          const name = getColorName(hex);
-          return `<div class="scheme-swatch-card" data-hex="${hex}"><div class="scheme-swatch-color" style="background:${hex}"></div><div class="scheme-swatch-info"><div class="scheme-swatch-name">${name.n || "配色色"
-            }</div><div class="scheme-swatch-hex">${hex}</div></div><button class="scheme-add-btn"><i class="fas fa-plus"></i> 添加</button></div>`;
-        })
-        .join("")}</div></div>`;
+    rows += `<div class="scheme-row ${
+      activeSchemeTab === key ? "active" : ""
+    }" data-row="${key}"><div class="scheme-desc">${
+      cfg.desc
+    }</div><div class="scheme-swatches">${swatches
+      .map((hex) => {
+        const name = getColorName(hex);
+        return `<div class="scheme-swatch-card" data-hex="${hex}"><div class="scheme-swatch-color" style="background:${hex}"></div><div class="scheme-swatch-info"><div class="scheme-swatch-name">${
+          name.n || "配色色"
+        }</div><div class="scheme-swatch-hex">${hex}</div></div><button class="scheme-add-btn"><i class="fas fa-plus"></i> 添加</button></div>`;
+      })
+      .join("")}</div></div>`;
   }
   tabs += `</div>`;
-  dom.schemeContent.innerHTML = `<div class="scheme-base-indicator"><div class="scheme-base-swatch" style="background:${curr.hex
-    }"></div><div class="scheme-base-text">基于主色：<span class="scheme-base-name">${curr.name || "未命名"
-    } ${curr.hex
-    }</span></div></div>${tabs}${rows}<div id="fullPalettePreview" class="full-palette-preview"></div>`;
+  dom.schemeContent.innerHTML = `<div class="scheme-base-indicator"><div class="scheme-base-swatch" style="background:${
+    curr.hex
+  }"></div><div class="scheme-base-text">基于主色：<span class="scheme-base-name">${
+    curr.name || "未命名"
+  } ${
+    curr.hex
+  }</span></div></div>${tabs}${rows}<div id="fullPalettePreview" class="full-palette-preview"></div>`;
 
   document.querySelectorAll(".scheme-tab").forEach((tab) => {
     tab.onclick = (e) => {
