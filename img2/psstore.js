@@ -13,8 +13,8 @@ let colors = [
 ];
 let activeGroupId = "default";
 let selectedColorId = null;
-let nextColorId = 5;
-let nextGroupId = 2;
+let nextColorId = Math.max(...colors.map(c => parseInt(c.id.replace('c', ''), 10)), 0) + 1;
+let nextGroupId = Math.max(...groups.map(g => parseInt(g.id.replace('g', ''), 10)), 0) + 1;
 let currentFormat = "hex";
 let isMultiSelectMode = false;
 let multiSelectedIds = new Set();
@@ -254,5 +254,9 @@ export function loadFromStorage() {
       multiSelectedIds.clear();
       isMultiSelectMode = false;
     }
-  } catch (e) {}
+  } const maxColorId = Math.max(...colors.map(c => parseInt(c.id.replace('c', ''), 10)), 0);
+const maxGroupId = Math.max(...groups.map(g => parseInt(g.id.replace('g', ''), 10)), 0);
+nextColorId = Math.max(d.nextColorId || 0, maxColorId) + 1;
+nextGroupId = Math.max(d.nextGroupId || 0, maxGroupId) + 1;
+  catch (e) {}
 }
