@@ -240,23 +240,28 @@ export function loadFromStorage() {
     if (d.groups && d.colors) {
       groups = d.groups;
       colors = d.colors;
-      nextColorId =
-        d.nextColorId ||
-        Math.max(...colors.map((c) => +c.id.replace("c", "")), 4) + 1;
-      nextGroupId =
-        d.nextGroupId ||
-        Math.max(...groups.map((g) => +g.id.replace("g", "") || 0), 1) + 1;
-      activeGroupId = groups.find((g) => g.id === d.activeGroupId)
+
+      // ✅ 从 storage 恢复后，强制校准 next 计数器
+      const maxColorId = Math.max(
+        0,
+        ...colors.map(c => parseInt(c.id.replace('c', ''), 10))
+      );
+      const maxGroupId = Math.max(
+        0,
+        ...groups.map(g => parseInt(g.id.replace('g', ''), 10))
+      );
+      nextColorId = Math.max(d.nextColorId || 0, maxColorId) + 1;
+      nextGroupId = Math.max(d.nextGroupId || 0, maxGroupId) + 1;
+
+      activeGroupId = groups.find(g => g.id === d.activeGroupId)
         ? d.activeGroupId
         : groups[0].id;
-      currentFormat = d.currentFormat || "hex";
+      currentFormat = d.currentFormat || 'hex';
       selectedColorId = null;
       multiSelectedIds.clear();
       isMultiSelectMode = false;
     }
-  } const maxColorId = Math.max(...colors.map(c => parseInt(c.id.replace('c', ''), 10)), 0);
-const maxGroupId = Math.max(...groups.map(g => parseInt(g.id.replace('g', ''), 10)), 0);
-nextColorId = Math.max(d.nextColorId || 0, maxColorId) + 1;
-nextGroupId = Math.max(d.nextGroupId || 0, maxGroupId) + 1;
-  catch (e) {}
+  } catch (e) {
+    console.error('loadFromStorage error:', e);  // 方便调试
+  }
 }
