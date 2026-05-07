@@ -96,7 +96,7 @@ import {
   openShadeExportModal,
   addAllShadesToPalette,
 } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/psw/exportImport.js";
-import { initEyeDropper } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/psw/dragDrop/eyeDropper.js";
+import { initEyeDropper } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/psw/eyeDropper.js";
 import { initDragAndDrop } from "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/psw/dragDrop.js";
 import {
   confirmOperate,
