@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>翻页书</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital@0;1&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --page-w: 380px;
+    --page-h: 520px;
+    --shadow-color: rgba(30,20,10,0.45);
+    --spine-color: #7a5230;
+    --cover-color: #2c1a0e;
+    --paper: #fdf6e3;
+    --paper-dark: #f0e6cc;
+    --ink: #1a1209;
+    --accent: #8b3a1a;
+  }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 60% 40%, #1a0f05 0%, #0d0804 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Lora', serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Ambient dust particles */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle, rgba(255,220,150,0.06) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,200,100,0.04) 1px, transparent 1px);
+    background-size: 80px 80px, 120px 120px;
+    background-position: 0 0, 40px 40px;
+    pointer-events: none;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: rgba(255,220,150,0.75);
+    font-size: 1.1rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    font-weight: 400;
+  }
+
+  /* ─── Book container ─── */
+  .book-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book {
+    position: relative;
+    width: calc(var(--page-w) * 2);
+    height: var(--page-h);
+    perspective: 2500px;
+    transform-style: preserve-3d;
+  }
+
+  /* Book shadow on table */
+  .book::after {
+    content: '';
+    position: absolute;
+    bottom: -28px;
+    left: 8%;
+    right: 8%;
+    height: 28px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, transparent 80%);
+    filter: blur(6px);
+    border-radius: 50%;
+  }
+
+  /* Spine */
+  .spine {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 100%;
+    background: linear-gradient(to right, #3d2008, var(--spine-color), #4a2a10);
+    z-index: 50;
+    box-shadow: 0 0 18px rgba(0,0,0,0.7);
+  }
+
+  /* ─── Static pages (left/right base) ─── */
+  .page-static {
+    position: absolute;
+    top: 0;
+    width: var(--page-w);
+    height: var(--page-h);
+    overflow: hidden;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-static.left  { left: 0;              border-radius: 4px 0 0 4px; }
+  .page-static.right { left: var(--page-w);  border-radius: 0 4px 4px 0; }
+
+  /* ─── Page image ─── */
+  .page-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: inherit;
+  }
+
+  /* Page gradient overlay for realism */
+  .page-static.left::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to left, rgba(0,0,0,0.18) 0%, transparent 30%);
+    pointer-events: none;
+  }
+  .page-static.right::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.18) 0%, transparent 30%);
+    pointer-events: none;
+  }
+
+  /* Page number */
+  .page-num {
+    position: absolute;
+    bottom: 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.72rem;
+    color: rgba(60,35,10,0.55);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .page-static.left  .page-num { left:  22px; }
+  .page-static.right .page-num { right: 22px; }
+
+  /* ─── Flipping page ─── */
+  .page-flip {
+    position: absolute;
+    top: 0;
+    left: var(--page-w);       /* starts on right side */
+    width: var(--page-w);
+    height: var(--page-h);
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform 0.85s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+    z-index: 30;
+    pointer-events: none;
+  }
+
+  .page-flip.flipping-forward {
+    transform: rotateY(-180deg);
+  }
+
+  /* When previewing a backward flip, the flip page is on the left */
+  .page-flip.from-left {
+    left: 0;
+    transform-origin: right center;
+    transform: rotateY(0deg);
+  }
+  .page-flip.from-left.flipping-backward {
+    transform: rotateY(180deg);
+  }
+
+  /* Front face of the flipping page */
+  .flip-front, .flip-back {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    overflow: hidden;
+    border-radius: 0 4px 4px 0;
+  }
+  .flip-back {
+    transform: rotateY(180deg);
+    border-radius: 4px 0 0 4px;
+  }
+
+  /* Curl shading during flip */
+  .flip-front::after, .flip-back::after {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .flip-front::after {
+    background: linear-gradient(to left, rgba(0,0,0,0.22) 0%, transparent 50%);
+  }
+  .flip-back::after {
+    background: linear-gradient(to right, rgba(0,0,0,0.22) 0%, transparent 50%);
+  }
+
+  /* ─── Controls ─── */
+  .controls {
+    margin-top: 38px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .btn {
+    background: none;
+    border: 1.5px solid rgba(255,210,130,0.35);
+    color: rgba(255,210,130,0.75);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255,200,100,0);
+    transition: background 0.25s;
+  }
+  .btn:hover:not(:disabled)::before { background: rgba(255,200,100,0.07); }
+  .btn:hover:not(:disabled) {
+    border-color: rgba(255,210,130,0.7);
+    color: rgba(255,220,160,1);
+    box-shadow: 0 0 20px rgba(255,180,60,0.12);
+  }
+  .btn:disabled { opacity: 0.3; cursor: default; }
+
+  .page-indicator {
+    font-family: 'Playfair Display', serif;
+    color: rgba(255,200,120,0.5);
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  /* Click zones */
+  .click-zone {
+    position: absolute; top: 0; width: 35%; height: 100%;
+    z-index: 100; cursor: pointer;
+  }
+  .click-zone.left-zone  { left: 0; }
+  .click-zone.right-zone { right: 0; }
+
+  /* Hover arrows */
+  .click-zone::after {
+    content: '';
+    position: absolute; top: 50%;
+    width: 36px; height: 36px;
+    border-top: 2.5px solid rgba(255,200,120,0);
+    border-left: 2.5px solid rgba(255,200,120,0);
+    transform: translateY(-50%);
+    transition: border-color 0.2s, opacity 0.2s;
+    opacity: 0;
+  }
+  .click-zone.left-zone::after  { left: 18px;  transform: translateY(-50%) rotate(-45deg); }
+  .click-zone.right-zone::after { right: 18px; transform: translateY(-50%) rotate(135deg); }
+  .click-zone:hover::after { border-color: rgba(255,200,120,0.55); opacity: 1; }
+
+  /* Loading placeholder */
+  .img-placeholder {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #e8d9b8 0%, #d4c49a 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(80,50,20,0.4);
+    font-size: 0.75rem; letter-spacing: 0.1em;
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Page texture paper feel */
+  .page-texture {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1; border-radius: inherit;
+    mix-blend-mode: multiply;
+  }
+</style>
+</head>
+<body>
+
+<h1>翻页书</h1>
+
+<div class="book-wrap">
+  <div class="book" id="book">
+    <div class="spine"></div>
+
+    <!-- Static left page -->
+    <div class="page-static left" id="staticLeft">
+      <div class="img-placeholder" id="leftPlaceholder">加载中…</div>
+      <img class="page-img" id="leftImg" src="" alt="" style="display:none">
+      <div class="page-texture"></div>
+      <span class="page-num" id="leftNum"></span>
+    </div>
+
+    <!-- Static right page -->
+    <div class="page-static right" id="staticRight">
+      <div class="img-placeholder" id="rightPlaceholder">加载中…</div>
+      <img class="page-img" id="rightImg" src="" alt="" style="display:none">
+      <div class="page-texture"></div>
+      <span class="page-num" id="rightNum"></span>
+    </div>
+
+    <!-- Flipping page (cloned during animation) -->
+    <div class="page-flip" id="flipPage">
+      <div class="flip-front" id="flipFront">
+        <div class="img-placeholder"></div>
+        <img class="page-img" id="flipFrontImg" src="" alt="" style="display:none">
+        <div class="page-texture"></div>
+      </div>
+      <div class="flip-back" id="flipBack">
+        <div class="img-placeholder"></div>
+        <img class="page-img" id="flipBackImg" src="" alt="" style="display:none">
+        <div class="page-texture"></div>
+      </div>
+    </div>
+
+    <!-- Click zones -->
+    <div class="click-zone left-zone"  id="prevZone"  onclick="prevPage()"></div>
+    <div class="click-zone right-zone" id="nextZone"  onclick="nextPage()"></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn" id="prevBtn" onclick="prevPage()">◂ 上一页</button>
+  <span class="page-indicator" id="indicator"></span>
+  <button class="btn" id="nextBtn" onclick="nextPage()">下一页 ▸</button>
+</div>
+
+<script>
+// ── Page data ──────────────────────────────────────────────
+// Each spread has: left page image + right page image
+// Using Picsum for beautiful placeholder images; swap src[] with your own images.
+const PAGE_IMAGES = [
+  // [leftSrc, rightSrc]  — spread index
+  [
+    'https://picsum.photos/seed/book01L/380/520',
+    'https://picsum.photos/seed/book01R/380/520'
+  ],
+  [
+    'https://picsum.photos/seed/book02L/380/520',
+    'https://picsum.photos/seed/book02R/380/520'
+  ],
+  [
+    'https://picsum.photos/seed/book03L/380/520',
+    'https://picsum.photos/seed/book03R/380/520'
+  ],
+  [
+    'https://picsum.photos/seed/book04L/380/520',
+    'https://picsum.photos/seed/book04R/380/520'
+  ],
+  [
+    'https://picsum.photos/seed/book05L/380/520',
+    'https://picsum.photos/seed/book05R/380/520'
+  ],
+  [
+    'https://picsum.photos/seed/book06L/380/520',
+    'https://picsum.photos/seed/book06R/380/520'
+  ],
+];
+
+const TOTAL_SPREADS = PAGE_IMAGES.length;
+let currentSpread = 0;
+let isAnimating = false;
+
+// ── DOM refs ───────────────────────────────────────────────
+const leftImg       = document.getElementById('leftImg');
+const rightImg      = document.getElementById('rightImg');
+const leftPH        = document.getElementById('leftPlaceholder');
+const rightPH       = document.getElementById('rightPlaceholder');
+const leftNum       = document.getElementById('leftNum');
+const rightNum      = document.getElementById('rightNum');
+const flipPage      = document.getElementById('flipPage');
+const flipFront     = document.getElementById('flipFront');
+const flipBack      = document.getElementById('flipBack');
+const flipFrontImg  = document.getElementById('flipFrontImg');
+const flipBackImg   = document.getElementById('flipBackImg');
+const indicator     = document.getElementById('indicator');
+const prevBtn       = document.getElementById('prevBtn');
+const nextBtn       = document.getElementById('nextBtn');
+
+// ── Image preload cache ────────────────────────────────────
+const imgCache = {};
+
+function preloadImg(src) {
+  if (imgCache[src]) return imgCache[src];
+  const p = new Promise((res) => {
+    const i = new Image();
+    i.onload = () => res(src);
+    i.onerror = () => res(null);
+    i.src = src;
+  });
+  imgCache[src] = p;
+  return p;
+}
+
+function preloadSpread(idx) {
+  if (idx < 0 || idx >= TOTAL_SPREADS) return;
+  preloadImg(PAGE_IMAGES[idx][0]);
+  preloadImg(PAGE_IMAGES[idx][1]);
+}
+
+// ── Render static spread ───────────────────────────────────
+async function renderSpread(idx, which = 'both') {
+  const [lSrc, rSrc] = PAGE_IMAGES[idx];
+
+  if (which !== 'right') {
+    leftImg.style.display = 'none';
+    leftPH.style.display = 'flex';
+    preloadImg(lSrc).then(() => {
+      leftImg.src = lSrc;
+      leftImg.style.display = 'block';
+      leftPH.style.display = 'none';
+    });
+    leftNum.textContent = `${idx * 2 + 1}`;
+  }
+
+  if (which !== 'left') {
+    rightImg.style.display = 'none';
+    rightPH.style.display = 'flex';
+    preloadImg(rSrc).then(() => {
+      rightImg.src = rSrc;
+      rightImg.style.display = 'block';
+      rightPH.style.display = 'none';
+    });
+    rightNum.textContent = `${idx * 2 + 2}`;
+  }
+}
+
+function updateUI() {
+  indicator.textContent = `${currentSpread + 1} / ${TOTAL_SPREADS}`;
+  prevBtn.disabled = currentSpread === 0;
+  nextBtn.disabled = currentSpread === TOTAL_SPREADS - 1;
+  document.getElementById('prevZone').style.pointerEvents = currentSpread === 0 ? 'none' : 'auto';
+  document.getElementById('nextZone').style.pointerEvents = currentSpread === TOTAL_SPREADS - 1 ? 'none' : 'auto';
+}
+
+// ── FORWARD flip ───────────────────────────────────────────
+async function nextPage() {
+  if (isAnimating || currentSpread >= TOTAL_SPREADS - 1) return;
+  isAnimating = true;
+
+  const nextIdx = currentSpread + 1;
+  const [curL, curR] = PAGE_IMAGES[currentSpread];
+  const [nxtL, nxtR] = PAGE_IMAGES[nextIdx];
+
+  // Preload next spread
+  await Promise.all([preloadImg(curR), preloadImg(nxtL)]);
+
+  // Setup flip page: front = current right, back = next left
+  flipPage.className = 'page-flip';           // reset classes
+  flipPage.style.left = 'var(--page-w)';
+  flipPage.style.transformOrigin = 'left center';
+  flipPage.style.transform = 'rotateY(0deg)';
+  flipPage.style.zIndex = 30;
+  flipPage.style.display = 'block';
+
+  // Front face = current right page
+  flipFrontImg.src = curR;
+  flipFrontImg.style.display = 'block';
+  flipFront.querySelector('.img-placeholder').style.display = 'none';
+
+  // Back face = next left page (will show when flipped)
+  flipBackImg.src = nxtL;
+  flipBackImg.style.display = 'block';
+  flipBack.querySelector('.img-placeholder').style.display = 'none';
+
+  // While flipping: right static shows next right; left static keeps current left
+  // Pre-render next right in static right (hidden under flip front)
+  rightImg.style.display = 'none';
+  rightPH.style.display = 'flex';
+  preloadImg(nxtR).then(() => {
+    rightImg.src = nxtR;
+    rightImg.style.display = 'block';
+    rightPH.style.display = 'none';
+  });
+  rightNum.textContent = `${nextIdx * 2 + 2}`;
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flipPage.style.transition = 'transform 0.85s cubic-bezier(0.645, 0.045, 0.355, 1.000)';
+      flipPage.style.transform = 'rotateY(-180deg)';
+    });
+  });
+
+  setTimeout(() => {
+    // After flip: update left to next left, hide flip page
+    leftImg.src = nxtL;
+    leftImg.style.display = 'block';
+    leftPH.style.display = 'none';
+    leftNum.textContent = `${nextIdx * 2 + 1}`;
+
+    flipPage.style.display = 'none';
+    currentSpread = nextIdx;
+    updateUI();
+    isAnimating = false;
+    preloadSpread(currentSpread + 1);
+  }, 880);
+}
+
+// ── BACKWARD flip ──────────────────────────────────────────
+async function prevPage() {
+  if (isAnimating || currentSpread <= 0) return;
+  isAnimating = true;
+
+  const prevIdx = currentSpread - 1;
+  const [curL, curR] = PAGE_IMAGES[currentSpread];
+  const [prvL, prvR] = PAGE_IMAGES[prevIdx];
+
+  await Promise.all([preloadImg(curL), preloadImg(prvR)]);
+
+  // Setup flip page on left side: front = prev right, back = current left
+  flipPage.className = 'page-flip';
+  flipPage.style.left = '0';
+  flipPage.style.transformOrigin = 'right center';
+  flipPage.style.transform = 'rotateY(180deg)';   // starts "flipped" = showing back
+  flipPage.style.zIndex = 30;
+  flipPage.style.display = 'block';
+
+  // Front face (will appear after flip) = prev right
+  flipFrontImg.src = prvR;
+  flipFrontImg.style.display = 'block';
+  flipFront.querySelector('.img-placeholder').style.display = 'none';
+
+  // Back face (visible first from left) = current left
+  flipBackImg.src = curL;
+  flipBackImg.style.display = 'block';
+  flipBack.querySelector('.img-placeholder').style.display = 'none';
+
+  // Pre-render prev left in static left
+  leftImg.style.display = 'none';
+  leftPH.style.display = 'flex';
+  preloadImg(prvL).then(() => {
+    leftImg.src = prvL;
+    leftImg.style.display = 'block';
+    leftPH.style.display = 'none';
+  });
+  leftNum.textContent = `${prevIdx * 2 + 1}`;
+
+  // Trigger animation (flip back to 0 = reveals front = prev right)
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flipPage.style.transition = 'transform 0.85s cubic-bezier(0.645, 0.045, 0.355, 1.000)';
+      flipPage.style.transform = 'rotateY(0deg)';
+    });
+  });
+
+  setTimeout(() => {
+    // After flip: update right to prev right
+    rightImg.src = prvR;
+    rightImg.style.display = 'block';
+    rightPH.style.display = 'none';
+    rightNum.textContent = `${prevIdx * 2 + 2}`;
+
+    flipPage.style.display = 'none';
+    currentSpread = prevIdx;
+    updateUI();
+    isAnimating = false;
+    preloadSpread(currentSpread - 1);
+  }, 880);
+}
+
+// ── Keyboard support ───────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight') nextPage();
+  if (e.key === 'ArrowLeft')  prevPage();
+});
+
+// ── Init ───────────────────────────────────────────────────
+(async function init() {
+  flipPage.style.display = 'none';
+  await renderSpread(0);
+  updateUI();
+  preloadSpread(1);
+})();
+</script>
+</body>
+</html>
