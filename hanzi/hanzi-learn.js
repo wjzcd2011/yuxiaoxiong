@@ -1181,7 +1181,7 @@ async function loadIdiomStories() {
   document.getElementById("story-body").innerHTML =
     '<div class="story-empty">正在加载成语故事库...</div>';
   try {
-    var res = await fetch("all_idioms.json");
+    var res = await fetch("https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/chengyu.json");
     if (!res.ok) throw new Error("load failed");
     idiomStories = await res.json();
   } catch (e) {
