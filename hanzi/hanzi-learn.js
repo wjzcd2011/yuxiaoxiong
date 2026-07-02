@@ -1,27 +1,16 @@
-﻿var apiKey = localStorage.getItem("bl_key") || "";
+var apiKey = localStorage.getItem("bl_key") || "";
 var stars = +localStorage.getItem("bl_stars") || 0;
 var streak = +localStorage.getItem("bl_streak") || 0;
 var todayCount = +localStorage.getItem("bl_today") || 0;
 var learned = JSON.parse(localStorage.getItem("bl_learned") || "[]");
-var dictHistory = JSON.parse(
-  localStorage.getItem("bl_dict_hist") || "[]"
-);
-var weekData = JSON.parse(
-  localStorage.getItem("bl_week") || "[0,0,0,0,0,0,0]"
-);
+var dictHistory = JSON.parse(localStorage.getItem("bl_dict_hist") || "[]");
+var weekData = JSON.parse(localStorage.getItem("bl_week") || "[0,0,0,0,0,0,0]");
 var quizRound = 1,
   quizStreak = 0,
   currentAnswer = "",
   quizIdx = 0;
 var currentQuizGrade = "一年级";
-var QUIZ_GRADES = [
-  "一年级",
-  "二年级",
-  "三年级",
-  "四年级",
-  "五年级",
-  "六年级",
-];
+var QUIZ_GRADES = ["一年级", "二年级", "三年级", "四年级", "五年级", "六年级"];
 var writeIdx = 0,
   ctx,
   isDrawing = false,
@@ -351,7 +340,7 @@ function setStatus(t, txt) {
 //   }
 // }
 
-const WORKER_URL = "https://zcd.xian318.workers.dev";
+const WORKER_URL = "https://yuwen-api-vwrbnprcpt.cn-hangzhou.fcapp.run";
 async function callAIStream(prompt, sys, onChunk) {
   const system = sys || "你是专门帮助1-6年级小朋友学习汉字的老师郑老师。";
 
@@ -364,7 +353,6 @@ async function callAIStream(prompt, sys, onChunk) {
           { role: "system", content: system },
           { role: "user", content: prompt },
         ],
-        stream: true,
         max_tokens: 400,
       }),
     });
@@ -373,33 +361,13 @@ async function callAIStream(prompt, sys, onChunk) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    // 流式响应处理
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop();
-
-      for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        const data = line.slice(5).trim();
-        if (data === "[DONE]") return;
-
-        try {
-          const json = JSON.parse(data);
-          const content = json.choices?.[0]?.delta?.content;
-          if (content) {
-            onChunk(content);
-          }
-        } catch (e) {}
-      }
-    }
+    const data = await response.json();
+    const content =
+      data.choices &&
+      data.choices[0] &&
+      data.choices[0].message &&
+      data.choices[0].message.content;
+    onChunk(content || "没有返回内容");
   } catch (error) {
     console.error("AI调用失败:", error);
     onChunk(`❌ 请求失败: ${error.message}`);
@@ -535,9 +503,7 @@ function checkBadges() {
 
 function renderBadges() {
   var ul = JSON.parse(localStorage.getItem("bl_badges") || "[]");
-  document.getElementById("achieve-row").innerHTML = BADGES.map(function (
-    b
-  ) {
+  document.getElementById("achieve-row").innerHTML = BADGES.map(function (b) {
     return (
       '<div class="badge-item" title="' +
       b.desc +
@@ -621,10 +587,7 @@ function openScene() {
 }
 
 function renderSceneTabs() {
-  document.getElementById("scene-tabs").innerHTML = SCENES.map(function (
-    s,
-    i
-  ) {
+  document.getElementById("scene-tabs").innerHTML = SCENES.map(function (s, i) {
     return (
       '<div class="scene-tab ' +
       (i === currentScene ? "active" : "") +
@@ -759,11 +722,9 @@ function renderSceneObjects() {
 
 // 修复：去掉多余的 category 参数
 async function learnSceneChar(char, label, idx) {
-  document
-    .querySelectorAll("#scene-objects .scene-tab")
-    .forEach(function (e) {
-      e.classList.remove("active");
-    });
+  document.querySelectorAll("#scene-objects .scene-tab").forEach(function (e) {
+    e.classList.remove("active");
+  });
   var el = document.getElementById("sobj-" + idx);
   if (el) el.classList.add("active");
 
@@ -1154,8 +1115,7 @@ async function submitWrite() {
     addStar(2);
     completeTask("write1");
   } catch (e) {
-    document.getElementById("write-stream").textContent =
-      "❌ 网络错误，请重试";
+    document.getElementById("write-stream").textContent = "❌ 网络错误，请重试";
   }
 }
 
@@ -1181,9 +1141,10 @@ async function loadIdiomStories() {
   document.getElementById("story-body").innerHTML =
     '<div class="story-empty">正在加载成语故事库...</div>';
   try {
-    var res = await fetch("https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/chengyu.json");
-    if (!res.ok) throw new Error("load failed");
-    idiomStories = await res.json();
+    var res = await fetch(
+      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/chengyu.json"
+    );
+    var d = await await res.json();
   } catch (e) {
     idiomStories = STORIES.map(function (s) {
       return {
@@ -1210,8 +1171,7 @@ function storyMatchesSearch(s, keyword) {
   var chars = Array.isArray(s.chars) ? s.chars.join("") : "";
   return (
     s.title.indexOf(keyword) !== -1 ||
-    (s.pinyin || "").toLowerCase().indexOf(keyword.toLowerCase()) !==
-      -1 ||
+    (s.pinyin || "").toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
     (s.meaning || "").indexOf(keyword) !== -1 ||
     (s.detail || "").indexOf(keyword) !== -1 ||
     chars.indexOf(keyword) !== -1
@@ -1333,9 +1293,7 @@ function renderStoryList() {
                 .slice(0, 4)
                 .map(function (c) {
                   return (
-                    '<div class="story-char-badge">' +
-                    escapeHtml(c) +
-                    "</div>"
+                    '<div class="story-char-badge">' + escapeHtml(c) + "</div>"
                   );
                 })
                 .join("") +
@@ -1427,9 +1385,7 @@ function openStoryDetail(i) {
     '</div><div class="story-chars" style="margin-bottom:12px;">' +
     chars
       .map(function (c) {
-        return (
-          '<div class="story-char-badge">' + escapeHtml(c) + "</div>"
-        );
+        return '<div class="story-char-badge">' + escapeHtml(c) + "</div>";
       })
       .join("") +
     "</div>" +
@@ -1542,10 +1498,8 @@ function switchPhonicsTab(tab, el) {
 
 function getPhonicsAudioPath(py) {
   var folderMap = {
-    shengmu:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/声母/",
-    yunmu:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/韵母/",
+    shengmu: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/声母/",
+    yunmu: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/韵母/",
     zhengtiyinjie:
       "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/整体认读音节/",
   };
@@ -1566,12 +1520,7 @@ function playPhonicsAudio(py) {
   phonicsAudio.src = getPhonicsAudioPath(py);
   phonicsAudio.load();
   phonicsAudio.play().catch(function () {
-    console.warn(
-      "拼音音频播放失败",
-      py,
-      phonicsAudio.src,
-      phonicsAudio.error
-    );
+    console.warn("拼音音频播放失败", py, phonicsAudio.src, phonicsAudio.error);
     toast("音频播放失败：" + py);
   });
 }
@@ -1595,8 +1544,7 @@ async function showPhonics(py, words, el) {
       );
     })
     .join("");
-  document.getElementById("phonics-ai").innerHTML =
-    aiCard("phonics-stream");
+  document.getElementById("phonics-ai").innerHTML = aiCard("phonics-stream");
   document.getElementById("phonics-stream").innerHTML = "";
   var full = "";
   await callAIStream(
@@ -1721,8 +1669,7 @@ async function analyzeRadical(radical) {
     meaning: "",
     words: [],
   };
-  document.getElementById("radical-ai").innerHTML =
-    aiCard("radical-stream");
+  document.getElementById("radical-ai").innerHTML = aiCard("radical-stream");
   document.getElementById("radical-stream").innerHTML = "";
   var full = "";
   await callAIStream(
@@ -1816,8 +1763,8 @@ var audioCtx = null,
   melodyTimer = null,
   bgGain = null;
 var MELODY = [
-  261, 294, 330, 349, 392, 440, 392, 349, 330, 294, 261, 0, 294, 330, 392,
-  440, 494, 440, 392, 330,
+  261, 294, 330, 349, 392, 440, 392, 349, 330, 294, 261, 0, 294, 330, 392, 440,
+  494, 440, 392, 330,
 ];
 
 function initAudioCtx() {
@@ -1837,10 +1784,7 @@ function playMelodyNote() {
     osc.type = "sine";
     osc.frequency.value = freq;
     g.gain.setValueAtTime(0.07, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(
-      0.001,
-      audioCtx.currentTime + 0.4
-    );
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
     osc.start();
     osc.stop(audioCtx.currentTime + 0.45);
   }
@@ -1851,9 +1795,7 @@ function toggleMusic() {
   initAudioCtx();
   if (audioCtx.state === "suspended") audioCtx.resume();
   musicPlaying = !musicPlaying;
-  document.getElementById("music-btn").textContent = musicPlaying
-    ? "🔇"
-    : "🎵";
+  document.getElementById("music-btn").textContent = musicPlaying ? "🔇" : "🎵";
   if (musicPlaying) {
     bgGain = audioCtx.createGain();
     bgGain.gain.value = 1;
@@ -1877,30 +1819,21 @@ function playSfx(type) {
       osc.type = "sine";
       osc.frequency.value = 523;
       g.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(
-        0.001,
-        audioCtx.currentTime + 0.3
-      );
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.3);
     } else if (type === "wrong") {
       osc.type = "square";
       osc.frequency.value = 180;
       g.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(
-        0.001,
-        audioCtx.currentTime + 0.25
-      );
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.25);
     } else if (type === "star") {
       osc.type = "sine";
       osc.frequency.value = 880;
       g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(
-        0.001,
-        audioCtx.currentTime + 0.2
-      );
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.2);
     }
@@ -2119,8 +2052,7 @@ function handleImgUpload(input) {
     var prev = document.getElementById("upload-preview");
     prev.src = e.target.result;
     prev.style.display = "block";
-    document.getElementById("imgread-submit-wrap").style.display =
-      "block";
+    document.getElementById("imgread-submit-wrap").style.display = "block";
     document.getElementById("imgread-result").innerHTML = "";
   };
   reader.readAsDataURL(file);
@@ -2164,8 +2096,7 @@ async function submitImgRead() {
     addStar(2);
     playSfx("star");
   } catch (e) {
-    document.getElementById("imgread-stream").textContent =
-      "网络错误请重试";
+    document.getElementById("imgread-stream").textContent = "网络错误请重试";
   }
 }
 
@@ -2373,20 +2304,19 @@ function switchStrokeGrade(grade) {
 }
 
 function renderStrokeTabs() {
-  document.getElementById("stroke-char-tabs").innerHTML =
-    getStrokeDataPool()
-      .map(function (s, i) {
-        return (
-          '<div class="scene-tab' +
-          (i === strokeCharIdx ? " active" : "") +
-          '" onclick="switchStrokeChar(' +
-          i +
-          ')"><span class="tc" style="font-size:14px;">' +
-          s.char +
-          "</span></div>"
-        );
-      })
-      .join("");
+  document.getElementById("stroke-char-tabs").innerHTML = getStrokeDataPool()
+    .map(function (s, i) {
+      return (
+        '<div class="scene-tab' +
+        (i === strokeCharIdx ? " active" : "") +
+        '" onclick="switchStrokeChar(' +
+        i +
+        ')"><span class="tc" style="font-size:14px;">' +
+        s.char +
+        "</span></div>"
+      );
+    })
+    .join("");
 }
 
 function switchStrokeChar(i) {
@@ -2467,9 +2397,7 @@ function renderStrokePreviewSvg(charData, step) {
       var fill = "#dbe3f0";
       if (step && i < step - 1) fill = "#667eea";
       if (step && i === step - 1) fill = "#f59e0b";
-      return (
-        '<path d="' + escapeSvgAttr(path) + '" fill="' + fill + '" />'
-      );
+      return '<path d="' + escapeSvgAttr(path) + '" fill="' + fill + '" />';
     })
     .join("");
   return (
@@ -2551,12 +2479,7 @@ function startStrokeQuiz() {
     onComplete: function () {
       strokeStep = d.count;
       updateStrokeProgress(d);
-      showWin(
-        "✅",
-        "描红完成！",
-        "继续学习下一个字吧！",
-        advanceStrokeChar
-      );
+      showWin("✅", "描红完成！", "继续学习下一个字吧！", advanceStrokeChar);
       markLearned(d.char);
       addStar(2);
     },
@@ -2624,8 +2547,7 @@ async function loadStrokeAI() {
       updateStrokeProgress(d);
     } catch (e) {}
   }
-  document.getElementById("stroke-ai").innerHTML =
-    aiCard("stroke-stream");
+  document.getElementById("stroke-ai").innerHTML = aiCard("stroke-stream");
   document.getElementById("stroke-stream").innerHTML = "";
   var full = "";
   await callAIStream(
