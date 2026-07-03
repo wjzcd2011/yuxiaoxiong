@@ -933,7 +933,7 @@ async function answerQuiz(el, choice) {
     var data = getQuizDataPool();
     quizIdx = (quizIdx + 1) % data.length;
     renderQuiz();
-  }, 5000);
+  }, 3800);
 }
 
 function openDict() {
