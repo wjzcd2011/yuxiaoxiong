@@ -100,12 +100,10 @@ header {
 }
 
 .hero {
-  background: linear-gradient(
-    160deg,
-    #667eea 0%,
-    #764ba2 60%,
-    #a855f7 100%
-  );
+  background: linear-gradient(160deg,
+      #667eea 0%,
+      #764ba2 60%,
+      #a855f7 100%);
   padding: 28px 20px 52px;
   text-align: center;
   color: #fff;
@@ -161,6 +159,7 @@ header {
 }
 
 @keyframes bounce {
+
   0%,
   100% {
     transform: translateY(0);
@@ -661,6 +660,7 @@ header {
 }
 
 @keyframes dot {
+
   0%,
   80%,
   100% {
@@ -767,6 +767,17 @@ header {
   object-fit: contain;
   border-radius: 8px;
   flex-shrink: 0;
+}
+
+#scene-tabs .scene-tab {
+  flex: 0 0 calc((100% - 42px) / 8);
+  justify-content: center;
+  padding: 4px;
+}
+
+#scene-tabs .scene-img {
+  width: 100%;
+  height: 82px;
 }
 
 .quiz-char-big {
@@ -2174,8 +2185,8 @@ body.night .modal-hd {
 }
 
 .scene-object-wrap .scene-word-card {
-  width: 74px;
-  min-height: 92px;
+  width: 118px;
+  min-height: 174px;
   padding: 0;
   flex-direction: column;
   align-items: stretch;
@@ -2196,30 +2207,37 @@ body.night .modal-hd {
 }
 
 .scene-word-pinyin {
-  height: 23px;
-  line-height: 23px;
-  padding: 0 4px;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 6px;
   border-bottom: 1px solid #f6c56e;
   background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 10px,
-      rgba(246, 197, 110, 0.35) 10px,
-      rgba(246, 197, 110, 0.35) 11px
-    ),
+    linear-gradient(to bottom, #f6c56e 0, #f6c56e 1px, transparent 1px),
+    linear-gradient(to bottom, transparent 29px, #f6c56e 29px, #f6c56e 30px),
+    repeating-linear-gradient(to right,
+      rgba(246, 197, 110, 0.55) 0,
+      rgba(246, 197, 110, 0.55) 5px,
+      transparent 5px,
+      transparent 9px),
+    repeating-linear-gradient(to right,
+      rgba(246, 197, 110, 0.55) 0,
+      rgba(246, 197, 110, 0.55) 5px,
+      transparent 5px,
+      transparent 9px),
     #fffdf4;
-  font-size: 15px;
+  background-size: 100% 100%, 100% 100%, 100% 1px, 100% 1px, 100% 100%;
+  background-position: 0 0, 0 0, 0 10px, 0 20px, 0 0;
+  background-repeat: no-repeat;
+  font-size: 18px;
   font-weight: 800;
-  text-align: left;
+  text-align: center;
   color: #111827;
   overflow: hidden;
 }
 
 .scene-word-grid {
   display: grid;
-  min-height: 40px;
-  border-bottom: 1px solid #f6c56e;
+  min-height: 68px;
 }
 
 .scene-word-grid-1 {
@@ -2244,14 +2262,14 @@ body.night .modal-hd {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  height: 40px;
+  height: 68px;
   border-right: 1px solid #f6c56e;
   background:
     linear-gradient(45deg, transparent 49%, rgba(246, 197, 110, 0.45) 50%, transparent 51%),
     linear-gradient(-45deg, transparent 49%, rgba(246, 197, 110, 0.45) 50%, transparent 51%),
     linear-gradient(to right, transparent 49%, rgba(246, 197, 110, 0.35) 50%, transparent 51%),
     linear-gradient(to bottom, transparent 49%, rgba(246, 197, 110, 0.35) 50%, transparent 51%);
-  font-size: 28px;
+  font-size: 50px;
   font-weight: 900;
   line-height: 1;
   color: #111827;
@@ -2259,6 +2277,47 @@ body.night .modal-hd {
 
 .scene-word-grid .tc:last-child {
   border-right: 0;
+}
+
+.scene-word-copybook {
+  margin: 10px 8px 8px;
+  border: 1px solid #f6c56e;
+  background: #fffdf4;
+}
+
+.scene-word-copy-pinyin {
+  height: 24px;
+  line-height: 24px;
+  padding: 0 5px;
+  border-bottom: 1px solid #f6c56e;
+  background:
+    linear-gradient(to bottom, #f6c56e 0, #f6c56e 1px, transparent 1px),
+    linear-gradient(to bottom, transparent 23px, #f6c56e 23px, #f6c56e 24px),
+    repeating-linear-gradient(to right,
+      rgba(246, 197, 110, 0.55) 0,
+      rgba(246, 197, 110, 0.55) 5px,
+      transparent 5px,
+      transparent 9px),
+    repeating-linear-gradient(to right,
+      rgba(246, 197, 110, 0.55) 0,
+      rgba(246, 197, 110, 0.55) 5px,
+      transparent 5px,
+      transparent 9px),
+    #fffdf4;
+  background-size: 100% 100%, 100% 100%, 100% 1px, 100% 1px, 100% 100%;
+  background-position: 0 0, 0 0, 0 8px, 0 16px, 0 0;
+  background-repeat: no-repeat;
+  font-size: 17px;
+  text-align: left;
+}
+
+.scene-word-copy-grid {
+  min-height: 48px;
+}
+
+.scene-word-copy-grid .tc {
+  height: 48px;
+  font-size: 34px;
 }
 
 .scene-word-label {
@@ -2286,5 +2345,13 @@ body.night .modal-hd {
 
   .scene-tab-bar {
     margin-bottom: 12px;
+  }
+
+  #scene-tabs .scene-tab {
+    flex-basis: 88px;
+  }
+
+  #scene-tabs .scene-img {
+    height: 78px;
   }
 }
