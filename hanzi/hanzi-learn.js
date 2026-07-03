@@ -700,8 +700,12 @@ function renderSceneObjects() {
 
   container.innerHTML = objects
     .map(function (o, i) {
+      var chars = String(o.label || o.char || "").match(/[\u4e00-\u9fa5]/g) || [
+        o.char,
+      ];
+      var pinyin = getScenePinyin(o.char);
       return (
-        '<div class="scene-tab" id="sobj-' +
+        '<div class="scene-tab scene-word-card" id="sobj-' +
         i +
         '" onclick="learnSceneChar(\'' +
         o.char +
@@ -710,14 +714,71 @@ function renderSceneObjects() {
         "'," +
         i +
         ')">' +
-        '<span class="tc">' +
-        o.char +
-        "</span>" +
-        o.label +
+        '<div class="scene-word-pinyin">' +
+        escapeHtml(pinyin) +
+        "</div>" +
+        '<div class="scene-word-grid scene-word-grid-' +
+        Math.min(chars.length, 4) +
+        '">' +
+        chars
+          .slice(0, 4)
+          .map(function (ch) {
+            return '<span class="tc">' + escapeHtml(ch) + "</span>";
+          })
+          .join("") +
+        "</div>" +
+        '<div class="scene-word-label">' +
+        escapeHtml(o.label) +
+        "</div>" +
         "</div>"
       );
     })
     .join("");
+}
+
+var scenePinyinCache = {};
+var scenePinyinMap = null;
+
+function getScenePinyin(char) {
+  char = String(char || "").charAt(0);
+  if (!char) return "";
+  if (scenePinyinCache[char]) return scenePinyinCache[char];
+
+  if (
+    window.pinyinPro &&
+    typeof window.pinyinPro.pinyin === "function"
+  ) {
+    scenePinyinCache[char] = window.pinyinPro.pinyin(char, {
+      toneType: "symbol",
+    });
+    return scenePinyinCache[char];
+  }
+
+  if (!scenePinyinMap) {
+    scenePinyinMap = {};
+    [window.QUIZ_DATA, window.DAILY_CHARS, window.STROKE_DATA].forEach(
+      function (list) {
+        if (!Array.isArray(list)) return;
+        list.forEach(function (item) {
+          if (item && item.char && item.pinyin && !scenePinyinMap[item.char]) {
+            scenePinyinMap[item.char] = item.pinyin;
+          }
+        });
+      }
+    );
+    if (window.WRITE_CHAR_GROUPS) {
+      Object.keys(window.WRITE_CHAR_GROUPS).forEach(function (grade) {
+        window.WRITE_CHAR_GROUPS[grade].forEach(function (item) {
+          if (item && item.char && item.pinyin && !scenePinyinMap[item.char]) {
+            scenePinyinMap[item.char] = item.pinyin;
+          }
+        });
+      });
+    }
+  }
+
+  scenePinyinCache[char] = scenePinyinMap[char] || "";
+  return scenePinyinCache[char];
 }
 
 // 修复：去掉多余的 category 参数
@@ -740,7 +801,7 @@ async function learnSceneChar(char, label, idx) {
       label +
       "）：\n认识「" +
       char +
-      "」字，小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词\n⑦ 生活：生活中哪里能看见\n⑧ 近反义：有近义词/反义词就写，没有就写“没有常用近反义词”",
+      "」字，宝宝\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词\n⑦ 生活：生活中哪里能看见\n⑧ 近反义：有近义词/反义词就写，没有就写“没有常用近反义词”",
     null,
     function (chunk) {
       full += chunk;
@@ -872,7 +933,7 @@ async function answerQuiz(el, choice) {
     var data = getQuizDataPool();
     quizIdx = (quizIdx + 1) % data.length;
     renderQuiz();
-  }, 15000);
+  }, 5000);
 }
 
 function openDict() {
@@ -917,7 +978,7 @@ async function doDict() {
       char +
       "」：\n认识「" +
       char +
-      "」字,小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
+      "」字,宝宝\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
     "你是专为1-6年级小朋友服务的汉字老师郑老师，温暖生动，控制在250字以内。",
     function (chunk) {
       full += chunk;
