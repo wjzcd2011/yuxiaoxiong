@@ -1135,16 +1135,18 @@ var currentStoryResults = [];
 var isStoryListView = false;
 var storyScrollBound = false;
 var STORY_INITIALS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+var CHENGYU_BASE_URL =
+  "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/chengyu/";
+var idiomDetailChunks = {};
 
 async function loadIdiomStories() {
   if (idiomStories) return idiomStories;
   document.getElementById("story-body").innerHTML =
     '<div class="story-empty">正在加载成语故事库...</div>';
   try {
-    var res = await fetch(
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/chengyu.json"
-    );
-    var d = await await res.json();
+    var res = await fetch(CHENGYU_BASE_URL + "search-index.json");
+    if (!res.ok) throw new Error("load failed");
+    idiomStories = await res.json();
   } catch (e) {
     idiomStories = STORIES.map(function (s) {
       return {
@@ -1164,6 +1166,19 @@ async function loadIdiomStories() {
     });
   }
   return idiomStories;
+}
+
+async function loadStoryDetail(i) {
+  var item = idiomStories[i];
+  if (!item || item.detailLoaded || !item.detailFile) return item;
+  if (!idiomDetailChunks[item.detailFile]) {
+    var res = await fetch(CHENGYU_BASE_URL + item.detailFile);
+    if (!res.ok) throw new Error("detail load failed");
+    idiomDetailChunks[item.detailFile] = await res.json();
+  }
+  var detail = idiomDetailChunks[item.detailFile][item.detailIndex];
+  idiomStories[i] = Object.assign({}, item, detail, { detailLoaded: true });
+  return idiomStories[i];
 }
 
 function storyMatchesSearch(s, keyword) {
@@ -1351,9 +1366,21 @@ function storySection(title, text) {
   );
 }
 
-function openStoryDetail(i) {
+async function openStoryDetail(i) {
   isStoryListView = false;
-  var s = idiomStories[i];
+  var body = document.getElementById("story-body");
+  body.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="renderStoryList()">← 返回</button></div>' +
+    '<div class="story-empty">正在加载成语详情...</div>';
+  var s;
+  try {
+    s = await loadStoryDetail(i);
+  } catch (e) {
+    body.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="renderStoryList()">← 返回</button></div>' +
+      '<div class="story-empty">成语详情加载失败，请稍后再试</div>';
+    return;
+  }
   var chars = Array.isArray(s.chars)
     ? s.chars
     : String(s.title || "").split("");
@@ -1376,7 +1403,7 @@ function openStoryDetail(i) {
       );
     })
     .join("");
-  document.getElementById("story-body").innerHTML =
+  body.innerHTML =
     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="renderStoryList()">← 返回</button></div>' +
     '<div class="story-detail-card"><div class="story-detail-title">' +
     escapeHtml(s.title) +
@@ -1421,7 +1448,7 @@ function openStoryDetail(i) {
 }
 
 async function analyzeStory(i) {
-  var s = idiomStories[i];
+  var s = await loadStoryDetail(i);
   document.getElementById("story-ai").innerHTML = aiCard("story-stream");
   document.getElementById("story-stream").innerHTML = "";
   var full = "";
