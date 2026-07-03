@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --sky: #e8f4ff;
   --sun: #ffd93d;
   --coral: #ff6b6b;
@@ -2171,6 +2171,104 @@ body.night .modal-hd {
 
 .scene-object-wrap .scene-tab {
   transition: all 0.25s ease;
+}
+
+.scene-object-wrap .scene-word-card {
+  width: 74px;
+  min-height: 92px;
+  padding: 0;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  overflow: hidden;
+  border-color: #f6c56e;
+  background: #fffdf4;
+  color: #1f2937;
+  white-space: normal;
+}
+
+.scene-object-wrap .scene-word-card:hover,
+.scene-object-wrap .scene-word-card.active {
+  border-color: #f59e0b;
+  color: #1f2937;
+  box-shadow: 0 6px 14px rgba(245, 158, 11, 0.18);
+}
+
+.scene-word-pinyin {
+  height: 23px;
+  line-height: 23px;
+  padding: 0 4px;
+  border-bottom: 1px solid #f6c56e;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 10px,
+      rgba(246, 197, 110, 0.35) 10px,
+      rgba(246, 197, 110, 0.35) 11px
+    ),
+    #fffdf4;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: left;
+  color: #111827;
+  overflow: hidden;
+}
+
+.scene-word-grid {
+  display: grid;
+  min-height: 40px;
+  border-bottom: 1px solid #f6c56e;
+}
+
+.scene-word-grid-1 {
+  grid-template-columns: 1fr;
+}
+
+.scene-word-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.scene-word-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.scene-word-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.scene-word-grid .tc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 40px;
+  border-right: 1px solid #f6c56e;
+  background:
+    linear-gradient(45deg, transparent 49%, rgba(246, 197, 110, 0.45) 50%, transparent 51%),
+    linear-gradient(-45deg, transparent 49%, rgba(246, 197, 110, 0.45) 50%, transparent 51%),
+    linear-gradient(to right, transparent 49%, rgba(246, 197, 110, 0.35) 50%, transparent 51%),
+    linear-gradient(to bottom, transparent 49%, rgba(246, 197, 110, 0.35) 50%, transparent 51%);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  color: #111827;
+}
+
+.scene-word-grid .tc:last-child {
+  border-right: 0;
+}
+
+.scene-word-label {
+  padding: 4px 3px 5px;
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: center;
+  color: #64748b;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .scene-object-wrap .scene-tab.hidden {
