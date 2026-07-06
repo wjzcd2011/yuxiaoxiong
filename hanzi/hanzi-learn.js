@@ -700,13 +700,15 @@ function renderSceneObjects() {
 
   container.innerHTML = objects
     .map(function (o, i) {
+      var pinyin = getScenePinyin(o.char);
       var chars = String(o.label || o.char || "").match(/[\u4e00-\u9fa5]/g) || [
         o.char,
       ];
-      var pinyin = getScenePinyin(o.char);
       return (
         '<div class="scene-tab scene-word-card" id="sobj-' +
         i +
+        '" title="' +
+        escapeHtml(o.label) +
         '" onclick="learnSceneChar(\'' +
         o.char +
         "','" +
@@ -717,7 +719,16 @@ function renderSceneObjects() {
         '<div class="scene-word-pinyin">' +
         escapeHtml(pinyin) +
         "</div>" +
-        '<div class="scene-word-grid scene-word-grid-' +
+        '<div class="scene-word-grid scene-word-main-grid">' +
+        '<span class="tc">' +
+        escapeHtml(o.char) +
+        "</span>" +
+        "</div>" +
+        '<div class="scene-word-copybook">' +
+        '<div class="scene-word-pinyin scene-word-copy-pinyin">' +
+        escapeHtml(pinyin) +
+        "</div>" +
+        '<div class="scene-word-grid scene-word-copy-grid scene-word-grid-' +
         Math.min(chars.length, 4) +
         '">' +
         chars
@@ -727,8 +738,6 @@ function renderSceneObjects() {
           })
           .join("") +
         "</div>" +
-        '<div class="scene-word-label">' +
-        escapeHtml(o.label) +
         "</div>" +
         "</div>"
       );
@@ -930,7 +939,7 @@ async function answerQuiz(el, choice) {
     var data = getQuizDataPool();
     quizIdx = (quizIdx + 1) % data.length;
     renderQuiz();
-  }, 3800);
+  }, 5000);
 }
 
 function openDict() {
