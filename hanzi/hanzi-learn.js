@@ -353,6 +353,7 @@ async function callAIStream(prompt, sys, onChunk) {
           { role: "system", content: system },
           { role: "user", content: prompt },
         ],
+        stream: true,
         max_tokens: 400,
       }),
     });
@@ -361,13 +362,34 @@ async function callAIStream(prompt, sys, onChunk) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    const content =
-      data.choices &&
-      data.choices[0] &&
-      data.choices[0].message &&
-      data.choices[0].message.content;
-    onChunk(content || "没有返回内容");
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if (data === "[DONE]") return;
+
+        try {
+          const json = JSON.parse(data);
+          const content =
+            json.choices &&
+            json.choices[0] &&
+            json.choices[0].delta &&
+            json.choices[0].delta.content;
+          if (content) onChunk(content);
+        } catch (e) {}
+      }
+    }
   } catch (error) {
     console.error("AI调用失败:", error);
     onChunk(`❌ 请求失败: ${error.message}`);
