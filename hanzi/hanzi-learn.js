@@ -376,7 +376,9 @@ async function callAIStream(prompt, sys, onChunk) {
 
 function aiCard(sid) {
   return (
-    '<div class="ai-card"><div class="ai-hd"><div class="ai-avatar">🌟</div><span class="ai-name">郑老师</span></div><div class="ai-text" id="' +
+    '<div class="ai-card"><div class="ai-hd"><div class="ai-avatar">🌟</div><span class="ai-name">郑老师</span><button class="ai-tts-btn" type="button" onclick="playAIText(\'' +
+    sid +
+    "', this)\">🔊 朗读</button></div><div class=\"ai-text\" id=\"" +
     sid +
     '"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>'
   );
@@ -412,7 +414,69 @@ function formatAIText(text) {
 }
 
 function setAIText(el, text) {
-  el.textContent = formatAIText(text);
+  var formatted = formatAIText(text);
+  el.textContent = formatted;
+  el.dataset.ttsText = formatted;
+}
+
+var currentTtsAudio = null;
+
+async function playAIText(textId, btn) {
+  var el = document.getElementById(textId);
+  var text = (el && (el.dataset.ttsText || el.textContent || "")).trim();
+  if (!text) {
+    toast("还没有可以朗读的内容");
+    return;
+  }
+
+  if (currentTtsAudio) {
+    currentTtsAudio.pause();
+    currentTtsAudio = null;
+  }
+
+  var oldText = btn ? btn.textContent : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "生成中...";
+  }
+
+  try {
+    var response = await fetch(`${WORKER_URL}/api/tts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text.slice(0, 800) }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    var blob = await response.blob();
+    var audioUrl = URL.createObjectURL(blob);
+    currentTtsAudio = new Audio(audioUrl);
+    currentTtsAudio.onended = function () {
+      URL.revokeObjectURL(audioUrl);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
+    };
+    currentTtsAudio.onerror = function () {
+      URL.revokeObjectURL(audioUrl);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
+      toast("朗读播放失败");
+    };
+    await currentTtsAudio.play();
+  } catch (e) {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = oldText;
+    }
+    toast("朗读生成失败");
+  }
 }
 
 function closeAll() {
@@ -1172,12 +1236,14 @@ async function submitWrite() {
       return;
     }
     var d = await r.json();
-    document.getElementById("write-stream").textContent =
+    setAIText(
+      document.getElementById("write-stream"),
       (d.choices &&
         d.choices[0] &&
         d.choices[0].message &&
         d.choices[0].message.content) ||
-      "无法评分";
+        "无法评分"
+    );
     markLearned(writeTarget);
     addStar(2);
     completeTask("write1");
@@ -2181,12 +2247,14 @@ async function submitImgRead() {
       return;
     }
     var d = await r.json();
-    document.getElementById("imgread-stream").textContent =
+    setAIText(
+      document.getElementById("imgread-stream"),
       (d.choices &&
         d.choices[0] &&
         d.choices[0].message &&
         d.choices[0].message.content) ||
-      "识别失败请重试";
+        "识别失败请重试"
+    );
     addStar(2);
     playSfx("star");
   } catch (e) {
