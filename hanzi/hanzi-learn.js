@@ -442,6 +442,24 @@ function setAIText(el, text) {
 }
 
 var currentTtsAudio = null;
+var ttsAudioCache = new Map();
+var TTS_CACHE_LIMIT = 20;
+
+function getTtsCacheKey(text) {
+  return text.slice(0, 800);
+}
+
+function saveTtsCache(key, audioUrl) {
+  if (ttsAudioCache.has(key)) return;
+  ttsAudioCache.set(key, audioUrl);
+
+  if (ttsAudioCache.size > TTS_CACHE_LIMIT) {
+    var firstKey = ttsAudioCache.keys().next().value;
+    var oldUrl = ttsAudioCache.get(firstKey);
+    URL.revokeObjectURL(oldUrl);
+    ttsAudioCache.delete(firstKey);
+  }
+}
 
 async function playAIText(textId, btn) {
   var el = document.getElementById(textId);
@@ -457,34 +475,41 @@ async function playAIText(textId, btn) {
   }
 
   var oldText = btn ? btn.textContent : "";
+  var cacheKey = getTtsCacheKey(text);
+  var cachedUrl = ttsAudioCache.get(cacheKey);
+
   if (btn) {
     btn.disabled = true;
-    btn.textContent = "生成中...";
+    btn.textContent = cachedUrl ? "播放中..." : "生成中...";
   }
 
   try {
-    var response = await fetch(`${WORKER_URL}/api/tts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text.slice(0, 800) }),
-    });
+    var audioUrl = cachedUrl;
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    if (!audioUrl) {
+      var response = await fetch(`${WORKER_URL}/api/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: cacheKey }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      var blob = await response.blob();
+      audioUrl = URL.createObjectURL(blob);
+      saveTtsCache(cacheKey, audioUrl);
     }
 
-    var blob = await response.blob();
-    var audioUrl = URL.createObjectURL(blob);
     currentTtsAudio = new Audio(audioUrl);
     currentTtsAudio.onended = function () {
-      URL.revokeObjectURL(audioUrl);
       if (btn) {
         btn.disabled = false;
         btn.textContent = oldText;
       }
     };
     currentTtsAudio.onerror = function () {
-      URL.revokeObjectURL(audioUrl);
       if (btn) {
         btn.disabled = false;
         btn.textContent = oldText;
