@@ -387,7 +387,7 @@ async function callAIStream(prompt, sys, onChunk) {
             json.choices[0].delta &&
             json.choices[0].delta.content;
           if (content) onChunk(content);
-        } catch (e) {}
+        } catch (e) { }
       }
     }
   } catch (error) {
@@ -400,7 +400,7 @@ function aiCard(sid) {
   return (
     '<div class="ai-card"><div class="ai-hd"><div class="ai-avatar">🌟</div><span class="ai-name">郑老师</span><button class="ai-tts-btn" type="button" onclick="playAIText(\'' +
     sid +
-    "', this)\">🔊 朗读</button></div><div class=\"ai-text\" id=\"" +
+    '\', this)">🔊 朗读</button></div><div class="ai-text" id="' +
     sid +
     '"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>'
   );
@@ -527,6 +527,7 @@ async function playAIText(textId, btn) {
 }
 
 function closeAll() {
+  if (typeof closeCoursewarePdf === "function") closeCoursewarePdf();
   document.querySelectorAll(".overlay").forEach(function (o) {
     o.classList.remove("open");
   });
@@ -913,12 +914,12 @@ async function learnSceneChar(char, label, idx) {
   var full = "";
   await callAIStream(
     "请严格按下面固定版式介绍汉字「" +
-      char +
-      "」（" +
-      label +
-      "）：\n认识「" +
-      char +
-      "」字，小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词\n⑦ 生活：生活中哪里能看见\n⑧ 近反义：有近义词/反义词就写，没有就写“没有常用近反义词”",
+    char +
+    "」（" +
+    label +
+    "）：\n认识「" +
+    char +
+    "」字，小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词\n⑦ 生活：生活中哪里能看见\n⑧ 近反义：有近义词/反义词就写，没有就写“没有常用近反义词”",
     null,
     function (chunk) {
       full += chunk;
@@ -1027,19 +1028,19 @@ async function answerQuiz(el, choice) {
   await callAIStream(
     ok
       ? "小朋友答对了！「" +
-          q.char +
-          "」(" +
-          q.pinyin +
-          ") 意思是「" +
-          q.ans +
-          "」，夸夸他，再补充一个有趣知识或例句。"
+      q.char +
+      "」(" +
+      q.pinyin +
+      ") 意思是「" +
+      q.ans +
+      "」，夸夸他，再补充一个有趣知识或例句。"
       : "小朋友答错了，「" +
-          q.char +
-          "」(" +
-          q.pinyin +
-          ") 正确答案是「" +
-          q.ans +
-          "」，温柔鼓励并解释，举一个例句帮助记忆。",
+      q.char +
+      "」(" +
+      q.pinyin +
+      ") 正确答案是「" +
+      q.ans +
+      "」，温柔鼓励并解释，举一个例句帮助记忆。",
     null,
     function (chunk) {
       full += chunk;
@@ -1092,10 +1093,10 @@ async function doDict() {
   var full = "";
   await callAIStream(
     "请严格按下面固定版式介绍汉字「" +
-      char +
-      "」：\n认识「" +
-      char +
-      "」字,小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
+    char +
+    "」：\n认识「" +
+    char +
+    "」字,小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
     "你是专为1-6年级小朋友服务的汉字老师郑老师，温暖生动，控制在250字以内。",
     function (chunk) {
       full += chunk;
@@ -1289,7 +1290,7 @@ async function submitWrite() {
         d.choices[0] &&
         d.choices[0].message &&
         d.choices[0].message.content) ||
-        "无法评分"
+      "无法评分"
     );
     markLearned(writeTarget);
     addStar(2);
@@ -1468,37 +1469,37 @@ function renderStoryList() {
     '<div class="story-grid">' +
     (visible.length
       ? visible
-          .map(function (item) {
-            var s = item.story;
-            var chars = Array.isArray(s.chars)
-              ? s.chars
-              : String(s.title || "").split("");
-            return (
-              '<div class="story-card" onclick="openStoryDetail(' +
-              item.index +
-              ')">' +
-              '<div class="story-title">' +
-              escapeHtml(s.title) +
-              "</div>" +
-              '<div class="story-meta">' +
-              escapeHtml(s.pinyin || "") +
-              "</div>" +
-              '<div class="story-chars">' +
-              chars
-                .slice(0, 4)
-                .map(function (c) {
-                  return (
-                    '<div class="story-char-badge">' + escapeHtml(c) + "</div>"
-                  );
-                })
-                .join("") +
-              "</div>" +
-              '<div class="story-preview">' +
-              escapeHtml(s.meaning || s.detail || "") +
-              "</div></div>"
-            );
-          })
-          .join("")
+        .map(function (item) {
+          var s = item.story;
+          var chars = Array.isArray(s.chars)
+            ? s.chars
+            : String(s.title || "").split("");
+          return (
+            '<div class="story-card" onclick="openStoryDetail(' +
+            item.index +
+            ')">' +
+            '<div class="story-title">' +
+            escapeHtml(s.title) +
+            "</div>" +
+            '<div class="story-meta">' +
+            escapeHtml(s.pinyin || "") +
+            "</div>" +
+            '<div class="story-chars">' +
+            chars
+              .slice(0, 4)
+              .map(function (c) {
+                return (
+                  '<div class="story-char-badge">' + escapeHtml(c) + "</div>"
+                );
+              })
+              .join("") +
+            "</div>" +
+            '<div class="story-preview">' +
+            escapeHtml(s.meaning || s.detail || "") +
+            "</div></div>"
+          );
+        })
+        .join("")
       : '<div class="story-empty">没有找到相关成语</div>') +
     "</div>" +
     (list.length > storyVisibleCount
@@ -1604,17 +1605,17 @@ async function openStoryDetail(i) {
     storySection("识记小方法", s.memoryTip) +
     (examples.length
       ? '<div class="story-section"><div class="story-section-title">基础例句</div><ul class="story-example-list">' +
-        examples
-          .map(function (ex) {
-            return "<li>" + escapeHtml(ex) + "</li>";
-          })
-          .join("") +
-        "</ul></div>"
+      examples
+        .map(function (ex) {
+          return "<li>" + escapeHtml(ex) + "</li>";
+        })
+        .join("") +
+      "</ul></div>"
       : "") +
     (ageHtml
       ? '<div class="story-section"><div class="story-section-title">分层范文句</div><ul class="story-example-list">' +
-        ageHtml +
-        "</ul></div>"
+      ageHtml +
+      "</ul></div>"
       : "") +
     '</div><div style="text-align:center;margin:12px 0;"><button class="btn-primary" onclick="analyzeStory(' +
     i +
@@ -1634,16 +1635,16 @@ async function analyzeStory(i) {
   var full = "";
   await callAIStream(
     "请分析成语「" +
-      s.title +
-      "」。资料：释义=" +
-      (s.meaning || "") +
-      "；详细解释=" +
-      (s.detail || "") +
-      "；出处=" +
-      (s.source || "") +
-      "；用法=" +
-      (s.usage || "") +
-      "。请按顺序讲清楚：①意思 ②故事或来源 ③小朋友怎么用 ④它告诉我们的道理。",
+    s.title +
+    "」。资料：释义=" +
+    (s.meaning || "") +
+    "；详细解释=" +
+    (s.detail || "") +
+    "；出处=" +
+    (s.source || "") +
+    "；用法=" +
+    (s.usage || "") +
+    "。请按顺序讲清楚：①意思 ②故事或来源 ③小朋友怎么用 ④它告诉我们的道理。",
     "你是专门帮小朋友学成语的郑老师，讲解生动，适合小学生。回答要规范分条，控制在300字以内。",
     function (chunk) {
       full += chunk;
@@ -1756,8 +1757,8 @@ async function showPhonics(py, words, el) {
   var full = "";
   await callAIStream(
     "教小朋友学拼音「" +
-      py +
-      "」的发音：①怎么发音（口型）②举2-3个含这个音的字 ③一个记忆发音的小技巧，生动活泼适合小学生。",
+    py +
+    "」的发音：①怎么发音（口型）②举2-3个含这个音的字 ③一个记忆发音的小技巧，生动活泼适合小学生。",
     null,
     function (chunk) {
       full += chunk;
@@ -1778,8 +1779,8 @@ function filterNB() {
 function renderNoteBook(filter) {
   var show = filter
     ? learned.filter(function (c) {
-        return c.includes(filter);
-      })
+      return c.includes(filter);
+    })
     : learned;
   var nbCountEl = document.getElementById("nb-count");
   if (nbCountEl) nbCountEl.textContent = learned.length;
@@ -1858,10 +1859,10 @@ function showRadicalDetail(radical) {
     '<div class="radical-examples">' +
     (info.words.length
       ? info.words
-          .map(function (w) {
-            return '<span class="radical-example">' + w + "</span>";
-          })
-          .join("")
+        .map(function (w) {
+          return '<span class="radical-example">' + w + "</span>";
+        })
+        .join("")
       : '<span class="radical-example">暂无本地例字</span>') +
     "</div>" +
     '<button class="btn-primary" onclick="analyzeRadical(\'' +
@@ -1881,14 +1882,14 @@ async function analyzeRadical(radical) {
   var full = "";
   await callAIStream(
     "请给小学生讲解部首「" +
-      radical +
-      "」。名称：" +
-      info.name +
-      "。含义：" +
-      info.meaning +
-      "。本地例字：" +
-      info.words.join("、") +
-      "。请补充更多常见字和词语，并说明这个部首常表示什么。",
+    radical +
+    "」。名称：" +
+    info.name +
+    "。含义：" +
+    info.meaning +
+    "。本地例字：" +
+    info.words.join("、") +
+    "。请补充更多常见字和词语，并说明这个部首常表示什么。",
     "你是专门教1-6年级小朋友识字的郑老师。回答要分条、简洁、生动，控制在220字以内。",
     function (chunk) {
       full += chunk;
@@ -1918,6 +1919,10 @@ function init() {
     .addEventListener("keydown", function (e) {
       if (e.key === "Enter") doDict();
     });
+  document.addEventListener("keydown", handleGuoxueKeydown);
+  document.addEventListener("keydown", handleCoursewareKeydown);
+  initCoursewareSwipe();
+  window.addEventListener("resize", handleCoursewareResize);
   document.getElementById("nb-input").addEventListener("input", filterNB);
   document
     .getElementById("setting-overlay")
@@ -2044,7 +2049,7 @@ function playSfx(type) {
       osc.start();
       osc.stop(audioCtx.currentTime + 0.2);
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 var winAction = null;
@@ -2215,10 +2220,10 @@ async function checkSentence() {
   markLearned(d.key);
   await callAIStream(
     "小朋友用「" +
-      d.key +
-      "」造句：「" +
-      composed +
-      "」。请：①判断是否通顺正确 ②给出1-5星评分 ③温柔夸奖或纠正 ④给出一个更好的示范句。适合小学生，加emoji。",
+    d.key +
+    "」造句：「" +
+    composed +
+    "」。请：①判断是否通顺正确 ②给出1-5星评分 ③温柔夸奖或纠正 ④给出一个更好的示范句。适合小学生，加emoji。",
     null,
     function (chunk) {
       full += chunk;
@@ -2300,7 +2305,7 @@ async function submitImgRead() {
         d.choices[0] &&
         d.choices[0].message &&
         d.choices[0].message.content) ||
-        "识别失败请重试"
+      "识别失败请重试"
     );
     addStar(2);
     playSfx("star");
@@ -2341,6 +2346,16 @@ var matchLeft = [],
   matchLeftIdx = null,
   matchRightIdx = null;
 
+var BLOCK_WORD_MAP = window.BLOCK_WORD_MAP || {};
+
+function parseBlockWord(value) {
+  var parts = String(value || "").split("｜");
+  return {
+    word: parts[0] || "",
+    tip: parts[1] || "",
+  };
+}
+
 function openMatch() {
   initMatch();
   openModal("ov-match");
@@ -2353,21 +2368,25 @@ function initMatch() {
   matchLeftIdx = null;
   matchRightIdx = null;
   document.getElementById("match-ai").innerHTML = "";
-  var pool = MATCH_POOL.slice()
-    .sort(function () {
-      return Math.random() - 0.5;
+  BLOCK_WORD_MAP = window.BLOCK_WORD_MAP || BLOCK_WORD_MAP || {};
+  var pool = Object.keys(BLOCK_WORD_MAP).length
+    ? Object.keys(BLOCK_WORD_MAP).map(function (char) {
+      return { char: char, meaning: BLOCK_WORD_MAP[char] };
     })
-    .slice(0, 6);
+    : MATCH_POOL.slice();
   matchLeft = pool.map(function (p, i) {
-    return { char: p.char, id: i, matched: false };
+    var blockInfo = parseBlockWord(BLOCK_WORD_MAP[p.char] || p.meaning);
+    return {
+      char: p.char,
+      meaning: p.meaning,
+      word: blockInfo.word || p.meaning,
+      tip: blockInfo.tip || p.meaning,
+      pinyin: getScenePinyin(p.char),
+      image: getBlockImagePath(p.char, blockInfo.word || p.meaning),
+      id: i,
+    };
   });
-  var rightPool = pool.map(function (p, i) {
-    return { meaning: p.meaning, id: i, matched: false };
-  });
-  rightPool.sort(function () {
-    return Math.random() - 0.5;
-  });
-  matchRight = rightPool;
+  matchRight = [];
   renderMatch();
   updateMatchScore();
 }
@@ -2375,44 +2394,101 @@ function initMatch() {
 function renderMatch() {
   document.getElementById("match-left").innerHTML = matchLeft
     .map(function (item, i) {
-      var cls =
-        "match-item" +
-        (item.matched ? " matched" : "") +
-        (matchSide === "left" && matchLeftIdx === i ? " selected" : "");
-      var onclick = item.matched
-        ? ""
-        : "onclick=\"selectMatch('left'," + i + ')"';
       return (
-        '<div class="' +
-        cls +
-        '" ' +
-        onclick +
-        ' style="font-size:24px;font-weight:900;">' +
-        item.char +
-        "</div>"
+        '<button class="match-block-card" type="button" onclick="learnBlockChar(' +
+        i +
+        ')">' +
+        '<div class="match-block-inner">' +
+        '<div class="match-block-face match-block-front">' +
+        '<div class="match-block-img-wrap"><img class="match-block-img" src="' +
+        escapeHtml(item.image) +
+        '" alt="" onerror="this.style.display=\'none\'"></div>' +
+        '<div class="match-block-bottom">' +
+        '<div class="match-block-main">' +
+        '<div class="match-block-pinyin">' +
+        escapeHtml(item.pinyin) +
+        "</div>" +
+        '<div class="match-block-grid"><span>' +
+        escapeHtml(item.char) +
+        "</span></div>" +
+        "</div>" +
+        '<div class="match-block-word">' +
+        escapeHtml(item.word) +
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        '<div class="match-block-face match-block-back">' +
+        '<div class="match-block-back-pinyin">' +
+        escapeHtml(item.pinyin) +
+        "</div>" +
+        '<div class="match-block-back-char">' +
+        escapeHtml(item.char) +
+        "</div>" +
+        '<div class="match-block-tip">' +
+        escapeHtml(item.tip) +
+        "</div>" +
+        "</div>" +
+        "</div>" +
+        "</button>"
       );
     })
     .join("");
-  document.getElementById("match-right").innerHTML = matchRight
-    .map(function (item, i) {
-      var cls =
-        "match-item" +
-        (item.matched ? " matched" : "") +
-        (matchSide === "right" && matchRightIdx === i ? " selected" : "");
-      var onclick = item.matched
-        ? ""
-        : "onclick=\"selectMatch('right'," + i + ')"';
-      return (
-        '<div class="' +
-        cls +
-        '" ' +
-        onclick +
-        ' style="font-size:12px;">' +
-        item.meaning +
-        "</div>"
-      );
-    })
-    .join("");
+  document.getElementById("match-right").innerHTML = "";
+}
+
+function getBlockFilePinyin(text) {
+  var fileName = "";
+  if (window.pinyinPro && typeof window.pinyinPro.pinyin === "function") {
+    fileName = window.pinyinPro
+      .pinyin(text, {
+        toneType: "none",
+        type: "array",
+      })
+      .join("");
+  }
+  if (!fileName) {
+    fileName = Array.from(text || "")
+      .map(function (char) {
+        return getScenePinyin(char);
+      })
+      .join("")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+  return fileName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}
+
+function getBlockImagePath(char, word) {
+  var charPinyin = getBlockFilePinyin(char);
+  var wordPinyin = getBlockFilePinyin(word);
+  var fileName = charPinyin;
+  if (wordPinyin) {
+    fileName += "-" + wordPinyin;
+  }
+  return "img/blocks/" + encodeURIComponent(fileName || char) + ".png";
+}
+
+async function learnBlockChar(idx) {
+  var item = matchLeft[idx];
+  if (!item) return;
+  var box = document.getElementById("match-ai");
+  box.innerHTML = aiCard("block-ai");
+  var out = document.getElementById("block-ai");
+  var text = "";
+  await callAIStream(
+    "请用儿童能听懂的话讲解汉字“" +
+    item.char +
+    "”，拼音是" +
+    item.pinyin +
+    "，组词是“" +
+    item.word +
+    "”。要求：①字形 ②拼音 ③组词 ④例句 ⑤记忆小技巧，每点单独换行，控制在160字以内。",
+    null,
+    function (chunk) {
+      text += chunk;
+      setAIText(out, text);
+    }
+  );
 }
 
 function selectMatch(side, idx) {
@@ -2457,8 +2533,833 @@ function selectMatch(side, idx) {
 }
 
 function updateMatchScore() {
-  document.getElementById("match-score").textContent =
-    "配对 " + matchScore + " / 6";
+  document.getElementById("match-score").textContent = "点一点积木，认识汉字";
+}
+
+var POETRY_DATA_URL =
+  "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/img/yuyue5.json";
+var SONG_POETRY_DATA_URL =
+  "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/song-poems.json";
+var poetryData = [];
+var filteredPoetry = [];
+var poetryPage = 1;
+var poetryPageSize = 12;
+var poetryType = "all";
+var poetryKeyword = "";
+var guoxueImagePages = {};
+
+var GUOXUE_ITEMS = {
+  三字经: {
+    type: "image-pages",
+    prefix: "img/pg",
+    suffix: ".jpg",
+    pageCount: 118,
+    alt: "三字经",
+  },
+  弟子规:
+    "弟子规，圣人训。\n 首孝悌，次谨信。\n 泛爱众，而亲仁。\n 有余力，则学文。\n 父母呼，应勿缓。\n 父母命，行勿懒。\n 父母教，须敬听。\n 父母责，须顺承。\n 冬则温，夏则凊。\n 晨则省，昏则定。\n 出必告，反必面。\n 居有常，业无变。\n 事虽小，勿擅为。\n 苟擅为，子道亏。\n 物虽小，勿私藏。\n 苟私藏，亲心伤。\n 亲所好，力为具。\n 亲所恶，谨为去。\n 身有伤，贻亲忧。\n 德有伤，贻亲羞。\n 亲爱我，孝何难。\n 亲憎我，孝方贤。\n 亲有过，谏使更。\n 怡吾色，柔吾声。\n 谏不入，悦复谏。\n 号泣随，挞无怨。\n 亲有疾，药先尝。\n 昼夜侍，不离床。\n 丧三年，常悲咽。\n 居处变，酒肉绝。\n 丧尽礼，祭尽诚。\n 事死者，如事生。\n 兄道友，弟道恭。\n 兄弟睦，孝在中。\n 财物轻，怨何生。\n 言语忍，忿自泯。\n 或饮食，或坐走。\n 长者先，幼者后。\n 长呼人，即代叫。\n 人不在，己即到。\n 称尊长，勿呼名。\n 对尊长，勿见能。\n 路遇长，疾趋揖。\n 长无言，退恭立。\n 骑下马，乘下车。\n 过犹待，百步余。\n 长者立，幼勿坐。\n 长者坐，命乃坐。\n 尊长前，声要低。\n 低不闻，却非宜。\n 进必趋，退必迟。\n 问起对，视勿移。\n 事诸父，如事父。\n 事诸兄，如事兄。\n 朝起早，夜眠迟。\n 老易至，惜此时。\n 晨必盥，兼漱口。\n 便溺回，辄净手。\n 冠必正，纽必结。\n 袜与履，俱紧切。\n 置冠服，有定位。\n 勿乱顿，致污秽。\n 衣贵洁，不贵华。\n 上循分，下称家。\n 对饮食，勿拣择。\n 食适可，勿过则。\n 年方少，勿饮酒。\n 饮酒醉，最为丑。\n 步从容，立端正。\n 揖深圆，拜恭敬。\n 勿践阈，勿跛倚。\n 勿箕踞，勿摇髀。\n 缓揭帘，勿有声。\n 宽转弯，勿触棱。\n 执虚器，如执盈。\n 入虚室，如有人。\n 事勿忙，忙多错。\n 勿畏难，勿轻略。\n 斗闹场，绝勿近。\n 邪僻事，绝勿问。\n 将入门，问孰存。\n 将上堂，声必扬。\n 人问谁，对以名。\n 吾与我，不分明。\n 用人物，须明求。\n 倘不问，即为偷。\n 借人物，及时还。\n 后有急，借不难。\n 凡出言，信为先。\n 诈与妄，奚可焉。\n 话说多，不如少。\n 惟其是，勿佞巧。\n 奸巧语，秽污词。\n 市井气，切戒之。\n 见未真，勿轻言。\n 知未的，勿轻传。\n 事非宜，勿轻诺。\n 苟轻诺，进退错。\n 凡道字，重且舒。\n 勿急疾，勿模糊。\n 彼说长，此说短。\n 不关己，莫闲管。\n 见人善，即思齐。\n 纵去远，以渐跻。\n 见人恶，即内省。\n 有则改，无加警。\n 唯德学，唯才艺。\n 不如人，当自砺。\n 若衣服，若饮食。\n 不如人，勿生戚。\n 闻过怒，闻誉乐。\n 损友来，益友却。\n 闻誉恐，闻过欣。\n 直谅士，渐相亲。\n 无心非，名为错。\n 有心非，名为恶。\n 过能改，归于无。\n 倘掩饰，增一辜。\n 凡是人，皆须爱。\n 天同覆，地同载。\n 行高者，名自高。\n 人所重，非貌高。\n 才大者，望自大。\n 人所服，非言大。\n 己有能，勿自私。\n 人所能，勿轻訾。\n 勿谄富，勿骄贫。\n 勿厌故，勿喜新。\n 人不闲，勿事搅。\n 人不安，勿话扰。\n 人有短，切莫揭。\n 人有私，切莫说。\n 道人善，即是善。\n 人知之，愈思勉。\n 扬人恶，即是恶。\n 疾之甚，祸且作。\n 善相劝，德皆建。\n 过不规，道两亏。\n 凡取与，贵分晓。\n 与宜多，取宜少。\n 将加人，先问己。\n 己不欲，即速已。\n 恩欲报，怨欲忘。\n 报怨短，报恩长。\n 待婢仆，身贵端。\n 虽贵端，慈而宽。\n 势服人，心不然。\n 理服人，方无言。\n 同是人，类不齐。\n 流俗众，仁者希。\n 果仁者，人多畏。\n 言不讳，色不媚。\n 能亲仁，无限好。\n 德日进，过日少。\n 不亲仁，无限害。\n 小人进，百事坏。\n 不力行，但学文。\n 长浮华，成何人。\n 但力行，不学文。\n 任己见，昧理真。\n 读书法，有三到。\n 心眼口，信皆要。\n 方读此，勿慕彼。\n 此未终，彼勿起。\n 宽为限，紧用功。\n 工夫到，滞塞通。\n 心有疑，随札记。\n 就人问，求确义。\n 房室清，墙壁净。\n 几案洁，笔砚正。\n 墨磨偏，心不端。\n 字不敬，心先病。\n 列典籍，有定处。\n 读看毕，还原处。\n 虽有急，卷束齐。\n 有缺坏，就补之。\n 非圣书，屏勿视。\n 蔽聪明，坏心志。\n 勿自暴，勿自弃。\n 圣与贤，可驯致。\n ",
+  千字文:
+    "天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。",
+};
+
+delete GUOXUE_ITEMS["弟子规"];
+delete GUOXUE_ITEMS["千字文"];
+
+function openPoetry() {
+  openModal("ov-poetry");
+  loadPoetryData();
+}
+
+async function loadPoetryData() {
+  renderPoetryTabs();
+  document.getElementById("poetry-detail").innerHTML = "";
+  document.getElementById("poetry-ai").innerHTML = "";
+  if (poetryData.length) {
+    applyPoetryFilter();
+    return;
+  }
+  document.getElementById("poetry-list").innerHTML =
+    '<div class="story-empty">正在加载诗词库...</div>';
+  try {
+    var res = await fetch(POETRY_DATA_URL);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    poetryData = await res.json();
+    var songRes = await fetch(SONG_POETRY_DATA_URL);
+    if (songRes.ok) {
+      poetryData = mergePoetryData(
+        poetryData,
+        normalizeSongPoems(await songRes.json())
+      );
+    }
+    applyPoetryFilter();
+  } catch (e) {
+    document.getElementById("poetry-list").innerHTML =
+      '<div class="story-empty">诗词数据加载失败，请稍后再试</div>';
+  }
+}
+
+function mergePoetryData(baseList, extraList) {
+  var seen = {};
+  return (baseList || []).concat(extraList || []).filter(function (item) {
+    var key = [item.title || "", item.author || ""].join("|");
+    if (seen[key]) return false;
+    seen[key] = true;
+    return true;
+  });
+}
+
+function normalizeSongPoems(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map(function (item, index) {
+    var lines = getSongPoemLines(item);
+    return {
+      id: "song-" + index,
+      title: item.title || "",
+      author: item.author || "",
+      type: ["song"],
+      content: lines,
+      pinyin: lines.map(getPoetryLinePinyinParts),
+      paraphrase: item.translation || item.background || "",
+      annotation: item.annotation || "",
+      appreciation: item.appreciation || "",
+    };
+  });
+}
+
+function getSongPoemLines(item) {
+  return String(item.content || "")
+    .split(/\n+/)
+    .map(function (line) {
+      return line.trim();
+    })
+    .filter(function (line) {
+      return (
+        line &&
+        line !== item.title &&
+        line.indexOf("作者：") !== 0 &&
+        line.indexOf("作者:") !== 0
+      );
+    })
+    .reduce(function (lines, line) {
+      return lines.concat(splitSongLineByTwoSentences(line));
+    }, []);
+}
+
+function splitSongLineByTwoSentences(line) {
+  var sentences = String(line || "").match(/[^。！？?!]+[。！？?!]?/g) || [];
+  if (sentences.length <= 2) return [line];
+  var result = [];
+  for (var i = 0; i < sentences.length; i += 2) {
+    result.push(sentences.slice(i, i + 2).join(""));
+  }
+  return result;
+}
+
+function getPoetryLinePinyinParts(line) {
+  return String(line || "")
+    .replace(/\s/g, "")
+    .split("")
+    .map(function (char) {
+      if (!/[\u4e00-\u9fa5]/.test(char)) return "";
+      if (window.pinyinPro && typeof window.pinyinPro.pinyin === "function") {
+        return window.pinyinPro.pinyin(char, { toneType: "symbol" });
+      }
+      return "";
+    });
+}
+
+function renderPoetryTabs() {
+  var tabs = [
+    { type: "all", label: "全部" },
+    { type: "tang", label: "唐诗" },
+    { type: "song", label: "宋词" },
+  ];
+  document.getElementById("poetry-tabs").innerHTML = tabs
+    .map(function (tab) {
+      return (
+        '<button class="classic-tab' +
+        (poetryType === tab.type ? " active" : "") +
+        '" onclick="switchPoetryType(\'' +
+        tab.type +
+        "')\">" +
+        tab.label +
+        "</button>"
+      );
+    })
+    .join("");
+}
+
+function switchPoetryType(type) {
+  poetryType = type;
+  poetryPage = 1;
+  renderPoetryTabs();
+  applyPoetryFilter();
+}
+
+function searchPoetryList(keyword) {
+  poetryKeyword = String(keyword || "").trim();
+  poetryPage = 1;
+  applyPoetryFilter();
+}
+
+function poemHasType(poem, type) {
+  if (type === "all") return true;
+  var raw = Array.isArray(poem.type)
+    ? poem.type.join(",")
+    : String(poem.type || "");
+  return raw.indexOf(type) !== -1;
+}
+
+function poemMatchesKeyword(poem) {
+  if (!poetryKeyword) return true;
+  return (
+    String(poem.title || "").indexOf(poetryKeyword) !== -1 ||
+    String(poem.author || "").indexOf(poetryKeyword) !== -1 ||
+    (poem.content || []).join("").indexOf(poetryKeyword) !== -1
+  );
+}
+
+function applyPoetryFilter() {
+  filteredPoetry = poetryData.filter(function (poem) {
+    return poemHasType(poem, poetryType) && poemMatchesKeyword(poem);
+  });
+  renderPoetryList();
+  renderPoetryPagination();
+}
+
+function renderPoetryList() {
+  var start = (poetryPage - 1) * poetryPageSize;
+  var pagePoems = filteredPoetry.slice(start, start + poetryPageSize);
+  document.getElementById("poetry-detail").innerHTML = "";
+  document.getElementById("poetry-ai").innerHTML = "";
+  if (!pagePoems.length) {
+    document.getElementById("poetry-list").innerHTML =
+      '<div class="story-empty">没有找到相关诗词</div>';
+    return;
+  }
+  document.getElementById("poetry-list").innerHTML = pagePoems
+    .map(function (item) {
+      var content = (item.content || []).join("").slice(0, 42);
+      return (
+        '<button class="classic-card poetry-card" data-poem-id="' +
+        escapeHtml(String(item.id)) +
+        '" onclick="showPoetryDetailByButton(this)">' +
+        '<div class="classic-card-title">' +
+        escapeHtml(item.title) +
+        "</div>" +
+        '<div class="classic-card-meta">' +
+        escapeHtml(item.author) +
+        "</div>" +
+        '<div class="classic-card-text">' +
+        escapeHtml(content) +
+        "</div>" +
+        "</button>"
+      );
+    })
+    .join("");
+}
+
+function renderPoetryPagination() {
+  var totalPages = Math.ceil(filteredPoetry.length / poetryPageSize);
+  var el = document.getElementById("poetry-pagination");
+  if (totalPages <= 1) {
+    el.innerHTML = "";
+    return;
+  }
+  el.innerHTML =
+    '<button class="btn-ghost" ' +
+    (poetryPage <= 1 ? "disabled" : "") +
+    ' onclick="changePoetryPage(-1)">上一页</button>' +
+    "<span>第 " +
+    poetryPage +
+    " / " +
+    totalPages +
+    " 页，共 " +
+    filteredPoetry.length +
+    " 首</span>" +
+    '<button class="btn-ghost" ' +
+    (poetryPage >= totalPages ? "disabled" : "") +
+    ' onclick="changePoetryPage(1)">下一页</button>';
+}
+
+function changePoetryPage(delta) {
+  var totalPages = Math.max(
+    1,
+    Math.ceil(filteredPoetry.length / poetryPageSize)
+  );
+  poetryPage = Math.min(totalPages, Math.max(1, poetryPage + delta));
+  renderPoetryList();
+  renderPoetryPagination();
+}
+
+function renderPoetryLine(line, pinyin) {
+  var chars = String(line || "")
+    .replace(/\s/g, "")
+    .split("");
+  var pinyinParts = Array.isArray(pinyin)
+    ? pinyin
+    : String(pinyin || "")
+      .trim()
+      .split(/\s+/);
+  return (
+    '<div class="poetry-line">' +
+    '<div class="poetry-char-line">' +
+    chars
+      .map(function (char, index) {
+        return (
+          '<span class="poetry-char-cell">' +
+          '<span class="poetry-pinyin-line">' +
+          escapeHtml(pinyinParts[index] || "") +
+          "</span>" +
+          '<span class="poetry-tianzigrid"><span>' +
+          escapeHtml(char) +
+          "</span></span>" +
+          "</span>"
+        );
+      })
+      .join("") +
+    "</div>" +
+    "</div>"
+  );
+}
+
+function showPoetryDetailByButton(btn) {
+  showPoetryDetail(btn.dataset.poemId);
+}
+
+function showPoetryDetail(poemId) {
+  var poem = poetryData.find(function (item) {
+    return String(item.id) === String(poemId);
+  });
+  if (!poem) return;
+  var lines = poem.content || [];
+  var pinyin = poem.pinyin || [];
+  document.getElementById("poetry-list").innerHTML = "";
+  document.getElementById("poetry-pagination").innerHTML = "";
+  document.getElementById("poetry-ai").innerHTML = "";
+  document.getElementById("poetry-detail").innerHTML =
+    '<div class="poetry-detail-card">' +
+    '<button class="btn-ghost" onclick="applyPoetryFilter()">返回列表</button>' +
+    '<div class="poetry-detail-title">' +
+    escapeHtml(poem.title || "") +
+    "</div>" +
+    '<div class="poetry-detail-meta">' +
+    escapeHtml(poem.author || "") +
+    "</div>" +
+    '<button class="btn-primary poetry-read-btn" data-poem-id="' +
+    escapeHtml(String(poem.id)) +
+    '" onclick="playPoetryTextByButton(this)">朗读诗词 🔊</button>' +
+    '<div class="poetry-lines">' +
+    lines
+      .map(function (line, index) {
+        return renderPoetryLine(line, pinyin[index]);
+      })
+      .join("") +
+    "</div>" +
+    '<div class="poetry-explain"><strong>诗词小解释</strong><p>' +
+    escapeHtml(poem.paraphrase || "") +
+    "</p></div>" +
+    '<div class="poetry-explain"><strong>诗词小注解</strong><p>' +
+    escapeHtml(poem.annotation || "暂无注解") +
+    "</p></div>" +
+    '<button class="btn-primary" data-poem-id="' +
+    escapeHtml(String(poem.id)) +
+    '" onclick="analyzePoetryById(this.dataset.poemId)">AI 讲解</button>' +
+    "</div>";
+}
+
+function getPoetryReadText(poem) {
+  return [poem.title || "", poem.author || "", (poem.content || []).join("。")]
+    .filter(Boolean)
+    .join("。");
+}
+
+function playPoetryText(poemId, btn) {
+  var poem = poetryData.find(function (item) {
+    return String(item.id) === String(poemId);
+  });
+  if (!poem) return;
+  var holder = document.getElementById("poetry-tts-text");
+  if (!holder) {
+    holder = document.createElement("span");
+    holder.id = "poetry-tts-text";
+    holder.style.display = "none";
+    document.body.appendChild(holder);
+  }
+  holder.dataset.ttsText = getPoetryReadText(poem);
+  holder.textContent = holder.dataset.ttsText;
+  playAIText("poetry-tts-text", btn);
+}
+
+function playPoetryTextByButton(btn) {
+  playPoetryText(btn.dataset.poemId, btn);
+}
+
+async function analyzePoetryById(poemId) {
+  var item = poetryData.find(function (poem) {
+    return String(poem.id) === String(poemId);
+  });
+  if (!item) return;
+  document.getElementById("poetry-ai").innerHTML = aiCard("poetry-stream");
+  var out = document.getElementById("poetry-stream");
+  var text = "";
+  await callAIStream(
+    "请给1-6年级小朋友讲解古诗《" +
+    item.title +
+    "》：" +
+    (item.content || []).join("") +
+    "。要求：①诗意 ②重点字词 ③画面感 ④背诵小技巧，每点单独换行，控制在200字以内。",
+    null,
+    function (chunk) {
+      text += chunk;
+      setAIText(out, text);
+    }
+  );
+}
+
+function openGuoxue() {
+  renderGuoxueTabs("三字经");
+  openModal("ov-guoxue");
+}
+
+function padGuoxuePage(n) {
+  return n < 10 ? "0" + n : String(n);
+}
+
+function getGuoxueImageSrc(item, page) {
+  if (item.pages) return item.pages[page - 1] || "";
+  return item.prefix + padGuoxuePage(page) + item.suffix;
+}
+
+function guoxuePageArrow(label, side, active, page, disabled) {
+  return (
+    '<button class="guoxue-page-arrow guoxue-page-arrow-' +
+    side +
+    '" aria-label="' +
+    label +
+    '" onclick="changeGuoxuePage(\'' +
+    active +
+    "', " +
+    page +
+    ')" ' +
+    (disabled ? "disabled" : "") +
+    ">" +
+    (side === "left" ? "&#8249;" : "&#8250;") +
+    "</button>"
+  );
+}
+
+function isGuoxueSinglePage() {
+  return window.matchMedia("(max-width: 720px)").matches;
+}
+
+function guoxuePageImage(active, item, page) {
+  var src = getGuoxueImageSrc(item, page);
+  return (
+    '<div class="guoxue-page-item"><img class="guoxue-page-img" src="' +
+    escapeHtml(src) +
+    '" alt="' +
+    escapeHtml((item.alt || active) + " 第" + page + "页") +
+    "\" onerror=\"this.style.display='none';this.nextElementSibling.style.display='block'\" />" +
+    '<div class="story-empty guoxue-page-error">图片没有找到：' +
+    escapeHtml(src) +
+    "</div></div>"
+  );
+}
+
+function renderGuoxueImagePages(active, item) {
+  var pageCount = item.pages ? item.pages.length : item.pageCount;
+  var current = guoxueImagePages[active] || 1;
+  var pageStep = isGuoxueSinglePage() ? 1 : 2;
+  current = Math.max(1, Math.min(pageCount, current));
+  if (pageStep === 2 && current % 2 === 0) current--;
+  guoxueImagePages[active] = current;
+  var lastPage = pageStep === 1 ? pageCount : pageCount - ((pageCount + 1) % 2);
+  var pageLabel =
+    pageStep === 2 && current < pageCount
+      ? current + "-" + (current + 1)
+      : String(current);
+  var images = guoxuePageImage(active, item, current);
+  if (pageStep === 2 && current < pageCount) {
+    images += guoxuePageImage(active, item, current + 1);
+  }
+  document.getElementById("guoxue-body").innerHTML =
+    '<div class="guoxue-page-viewer">' +
+    guoxuePageArrow(
+      "上一页",
+      "left",
+      active,
+      current - pageStep,
+      current === 1
+    ) +
+    '<div class="guoxue-page-spread">' +
+    images +
+    "</div>" +
+    guoxuePageArrow(
+      "下一页",
+      "right",
+      active,
+      current + pageStep,
+      current === lastPage
+    ) +
+    "</div>" +
+    '<div class="guoxue-page-number">' +
+    pageLabel +
+    " / " +
+    pageCount +
+    "</div>";
+}
+
+function changeGuoxuePage(active, page) {
+  var item = GUOXUE_ITEMS[active];
+  if (!item || item.type !== "image-pages") return;
+  var pageCount = item.pages ? item.pages.length : item.pageCount;
+  guoxueImagePages[active] = Math.max(1, Math.min(pageCount, page));
+  renderGuoxueTabs(active);
+}
+
+function handleGuoxueKeydown(e) {
+  if (!document.getElementById("ov-guoxue").classList.contains("open")) return;
+  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  e.preventDefault();
+  var pageStep = isGuoxueSinglePage() ? 1 : 2;
+  var current = guoxueImagePages["三字经"] || 1;
+  var item = GUOXUE_ITEMS["三字经"];
+  var pageCount = item.pages ? item.pages.length : item.pageCount;
+  var lastPage = pageStep === 1 ? pageCount : pageCount - ((pageCount + 1) % 2);
+  var next = current + (e.key === "ArrowLeft" ? -pageStep : pageStep);
+  changeGuoxuePage("三字经", Math.max(1, Math.min(lastPage, next)));
+}
+
+function renderGuoxueTabs(active) {
+  var item = GUOXUE_ITEMS[active];
+  var body = document.getElementById("guoxue-body");
+  if (item && item.type === "image-pages") {
+    renderGuoxueImagePages(active, item);
+    return;
+  }
+  if (item && item.type === "image") {
+    body.innerHTML =
+      '<img class="guoxue-page-img" src="' +
+      escapeHtml(item.src) +
+      '" alt="' +
+      escapeHtml(item.alt || active) +
+      '" />';
+    return;
+  }
+  body.textContent = item || "";
+}
+
+var COURSEWARE_PDFS = {
+  一年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 一年级 上册.pdf",
+  一年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 一年级 下册.pdf",
+  二年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 上册.pdf",
+  二年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 下册.pdf",
+  三年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 上册.pdf",
+  三年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 下册.pdf",
+  四年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 上册.pdf",
+  四年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/ile/义务教育教科书 语文 四年级 下册.pdf",
+  五年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 上册.pdf",
+  五年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 下册.pdf",
+  六年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 上册.pdf",
+  六年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 下册.pdf",
+  七年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 七年级 上册.pdf",
+  七年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 七年级 下册.pdf",
+  八年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 八年级 上册.pdf",
+  八年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 八年级 下册.pdf",
+  九年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 九年级 上册.pdf",
+  九年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 九年级 下册.pdf",
+};
+var COURSEWARE_STAGES = {
+  小学: [
+    "一年级上",
+    "一年级下",
+    "二年级上",
+    "二年级下",
+    "三年级上",
+    "三年级下",
+    "四年级上",
+    "四年级下",
+    "五年级上",
+    "五年级下",
+    "六年级上",
+    "六年级下",
+  ],
+  初中: [
+    "七年级上",
+    "七年级下",
+    "八年级上",
+    "八年级下",
+    "九年级上",
+    "九年级下",
+  ],
+};
+var currentCoursewareStage = "小学";
+var coursewarePdfLibPromise = null;
+var coursewarePdfDoc = null;
+var coursewareRenderTasks = [];
+var coursewarePage = 1;
+var coursewareResizeTimer = null;
+
+function openCourseware() {
+  closeCoursewarePdf();
+  currentCoursewareStage = "小学";
+  renderCoursewareList();
+  openModal("ov-courseware");
+}
+
+function renderCoursewareList() {
+  document.getElementById("courseware-stage-tabs").innerHTML = Object.keys(
+    COURSEWARE_STAGES
+  )
+    .map(function (stage) {
+      return (
+        '<button class="classic-tab' +
+        (stage === currentCoursewareStage ? " active" : "") +
+        '" type="button" onclick="switchCoursewareStage(\'' +
+        stage +
+        "')\">" +
+        stage +
+        (stage === "小学" ? " 1—6年级" : " 7—9年级") +
+        "</button>"
+      );
+    })
+    .join("");
+  document.getElementById("courseware-list").innerHTML = COURSEWARE_STAGES[
+    currentCoursewareStage
+  ]
+    .map(function (name) {
+      var available = Boolean(COURSEWARE_PDFS[name]);
+      return (
+        '<button class="classic-card" ' +
+        (available
+          ? "onclick=\"openCoursewarePdf('" + name + "')\""
+          : "disabled") +
+        ">" +
+        '<div class="classic-card-title">' +
+        name +
+        "</div>" +
+        '<div class="classic-card-meta">' +
+        (available ? "点击阅读电子课本" : "教材待补充") +
+        "</div></button>"
+      );
+    })
+    .join("");
+}
+
+function switchCoursewareStage(stage) {
+  if (!COURSEWARE_STAGES[stage]) return;
+  currentCoursewareStage = stage;
+  renderCoursewareList();
+}
+
+async function openCoursewarePdf(name) {
+  var path = COURSEWARE_PDFS[name];
+  if (!path) return;
+  document.getElementById("courseware-list-view").hidden = true;
+  document.getElementById("courseware-reader").hidden = false;
+  document.getElementById("courseware-pdf-title").textContent = name;
+  document.getElementById("courseware-pdf-status").textContent =
+    "正在加载电子课本…";
+  document.getElementById("courseware-pdf-canvas").style.display = "none";
+  document.getElementById("courseware-pdf-canvas-right").style.display = "none";
+  coursewarePage = 1;
+  updateCoursewareControls();
+  try {
+    if (!coursewarePdfLibPromise) {
+      coursewarePdfLibPromise = import("./pdfjs/pdf.min.mjs").then(function (
+        pdfjsLib
+      ) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.min.mjs";
+        return pdfjsLib;
+      });
+    }
+    var pdfjsLib = await coursewarePdfLibPromise;
+    if (coursewarePdfDoc) await coursewarePdfDoc.destroy();
+    var pdfUrl = new URL(path, window.location.href).href;
+    coursewarePdfDoc = await pdfjsLib.getDocument({
+      url: pdfUrl,
+      cMapUrl: "./pdfjs/cmaps/",
+      cMapPacked: true,
+    }).promise;
+    await renderCoursewarePage();
+  } catch (err) {
+    console.error("PDF加载失败:", err);
+    document.getElementById("courseware-pdf-status").textContent =
+      "电子课本加载失败，请检查PDF文件是否已部署。";
+  }
+}
+
+async function renderCoursewarePage() {
+  if (!coursewarePdfDoc) return;
+  coursewareRenderTasks.forEach(function (task) {
+    task.cancel();
+  });
+  coursewareRenderTasks = [];
+  var wrap = document.getElementById("courseware-canvas-wrap");
+  var isSingle = window.matchMedia("(max-width: 720px)").matches;
+  if (!isSingle && coursewarePage % 2 === 0) coursewarePage -= 1;
+  var pages = [coursewarePage];
+  if (!isSingle && coursewarePage + 1 <= coursewarePdfDoc.numPages) {
+    pages.push(coursewarePage + 1);
+  }
+  var canvases = [
+    document.getElementById("courseware-pdf-canvas"),
+    document.getElementById("courseware-pdf-canvas-right"),
+  ];
+  canvases[1].style.display = pages.length === 2 ? "block" : "none";
+  document.getElementById("courseware-pdf-status").textContent =
+    "正在绘制第 " + (pages.length === 2 ? pages.join("-") : pages[0]) + " 页…";
+  try {
+    await Promise.all(
+      pages.map(function (pageNumber, index) {
+        return renderCoursewareCanvas(
+          pageNumber,
+          canvases[index],
+          pages.length
+        );
+      })
+    );
+    document.getElementById("courseware-pdf-status").textContent = "";
+  } catch (err) {
+    if (!err || err.name !== "RenderingCancelledException") throw err;
+  }
+  updateCoursewareControls();
+  wrap.scrollTop = 0;
+  wrap.scrollLeft = 0;
+}
+
+async function renderCoursewareCanvas(pageNumber, canvas, pageCount) {
+  var page = await coursewarePdfDoc.getPage(pageNumber);
+  var baseViewport = page.getViewport({ scale: 1 });
+  var wrap = document.getElementById("courseware-canvas-wrap");
+  var gap = pageCount === 2 ? 28 : 16;
+  var availableWidth = Math.max(280, (wrap.clientWidth - gap) / pageCount);
+  var availableHeight = Math.max(320, wrap.clientHeight - 16);
+  var fitScale = Math.min(
+    availableWidth / baseViewport.width,
+    availableHeight / baseViewport.height
+  );
+  var viewport = page.getViewport({ scale: fitScale });
+  var pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  var context = canvas.getContext("2d");
+  canvas.width = Math.floor(viewport.width * pixelRatio);
+  canvas.height = Math.floor(viewport.height * pixelRatio);
+  canvas.style.width = Math.floor(viewport.width) + "px";
+  canvas.style.height = Math.floor(viewport.height) + "px";
+  canvas.style.display = "block";
+  var renderTask = page.render({
+    canvasContext: context,
+    viewport: viewport,
+    transform: pixelRatio === 1 ? null : [pixelRatio, 0, 0, pixelRatio, 0, 0],
+  });
+  coursewareRenderTasks.push(renderTask);
+  return renderTask.promise;
+}
+
+function changeCoursewarePage(step) {
+  if (!coursewarePdfDoc) return;
+  var pageStep = window.matchMedia("(max-width: 720px)").matches ? 1 : 2;
+  var next = Math.max(
+    1,
+    Math.min(coursewarePdfDoc.numPages, coursewarePage + step * pageStep)
+  );
+  if (next === coursewarePage) return;
+  coursewarePage = next;
+  renderCoursewarePage();
+}
+
+function updateCoursewareControls() {
+  var isSingle = window.matchMedia("(max-width: 720px)").matches;
+  var pageLabel = String(coursewarePage);
+  if (
+    !isSingle &&
+    coursewarePdfDoc &&
+    coursewarePage < coursewarePdfDoc.numPages
+  ) {
+    pageLabel += "-" + (coursewarePage + 1);
+  }
+  document.getElementById("courseware-page-info").textContent =
+    pageLabel + " / " + (coursewarePdfDoc ? coursewarePdfDoc.numPages : 0);
+}
+
+function closeCoursewarePdf() {
+  coursewareRenderTasks.forEach(function (task) {
+    task.cancel();
+  });
+  coursewareRenderTasks = [];
+  if (coursewarePdfDoc) coursewarePdfDoc.destroy();
+  coursewarePdfDoc = null;
+  var list = document.getElementById("courseware-list-view");
+  var reader = document.getElementById("courseware-reader");
+  if (list) list.hidden = false;
+  if (reader) reader.hidden = true;
+}
+
+function handleCoursewareKeydown(e) {
+  var reader = document.getElementById("courseware-reader");
+  if (
+    !document.getElementById("ov-courseware").classList.contains("open") ||
+    reader.hidden
+  )
+    return;
+  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  e.preventDefault();
+  changeCoursewarePage(e.key === "ArrowLeft" ? -1 : 1);
+}
+
+function initCoursewareSwipe() {
+  var wrap = document.getElementById("courseware-canvas-wrap");
+  var startX = 0;
+  wrap.addEventListener(
+    "touchstart",
+    function (e) {
+      startX = e.changedTouches[0].clientX;
+    },
+    { passive: true }
+  );
+  wrap.addEventListener(
+    "touchend",
+    function (e) {
+      var distance = e.changedTouches[0].clientX - startX;
+      if (Math.abs(distance) >= 60) changeCoursewarePage(distance > 0 ? -1 : 1);
+    },
+    { passive: true }
+  );
+}
+
+function handleCoursewareResize() {
+  if (!coursewarePdfDoc) return;
+  clearTimeout(coursewareResizeTimer);
+  coursewareResizeTimer = setTimeout(renderCoursewarePage, 150);
+}
+
+function openModernDict() {
+  document.getElementById("modern-dict-input").value = "";
+  document.getElementById("modern-dict-result").innerHTML = "";
+  openModal("ov-modern-dict");
+}
+
+async function searchModernDict() {
+  var word = document.getElementById("modern-dict-input").value.trim();
+  if (!word) {
+    toast("先输入要查询的字词");
+    return;
+  }
+  document.getElementById("modern-dict-result").innerHTML =
+    aiCard("modern-dict-stream");
+  var out = document.getElementById("modern-dict-stream");
+  var text = "";
+  await callAIStream(
+    "请按现代汉语词典风格解释“" +
+    word +
+    "”。请严格按以下格式回答，每项单独换行，不要使用①②③④⑤等数字编号：\n拼音：\n释义：\n组词或搭配：\n例句：\n近义词/反义词：\n没有的项目写“无”。内容适合小学生理解。",
+    "你是严谨的现代汉语词典助手，解释要准确、简洁、适合小学生。",
+    function (chunk) {
+      text += chunk;
+      setAIText(out, text);
+    }
+  );
 }
 
 var strokeCharIdx = 0,
@@ -2754,23 +3655,23 @@ async function loadStrokeAI() {
       strokeCharDataCache[d.char] = charData;
       applyStrokeCharacterData(d, charData);
       updateStrokeProgress(d);
-    } catch (e) {}
+    } catch (e) { }
   }
   document.getElementById("stroke-ai").innerHTML = aiCard("stroke-stream");
   document.getElementById("stroke-stream").innerHTML = "";
   var full = "";
   await callAIStream(
     "介绍汉字「" +
-      d.char +
-      "」(" +
-      d.pinyin +
-      ") 的笔顺：共" +
-      d.count +
-      "笔，依次是：" +
-      d.strokes.join("、") +
-      "。字形含义：" +
-      d.tip +
-      "。请用可爱的语言教小学生记忆这个字和笔顺，加emoji，100字以内。",
+    d.char +
+    "」(" +
+    d.pinyin +
+    ") 的笔顺：共" +
+    d.count +
+    "笔，依次是：" +
+    d.strokes.join("、") +
+    "。字形含义：" +
+    d.tip +
+    "。请用可爱的语言教小学生记忆这个字和笔顺，加emoji，100字以内。",
     null,
     function (chunk) {
       full += chunk;
