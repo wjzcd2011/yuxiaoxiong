@@ -3167,7 +3167,7 @@ async function openCoursewarePdf(name) {
   updateCoursewareControls();
   try {
     if (!coursewarePdfLibPromise) {
-      coursewarePdfLibPromise = import("./pdfjs/pdf.min.mjs").then(function (
+      coursewarePdfLibPromise = import("https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.min.mjs").then(function (
         pdfjsLib
       ) {
         pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.min.mjs";
