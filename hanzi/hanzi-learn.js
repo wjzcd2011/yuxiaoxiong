@@ -2465,7 +2465,7 @@ function getBlockImagePath(char, word) {
   if (wordPinyin) {
     fileName += "-" + wordPinyin;
   }
-  return "img/blocks/" + encodeURIComponent(fileName || char) + ".png";
+  return "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/img/blocks/" + encodeURIComponent(fileName || char) + ".png";
 }
 
 async function learnBlockChar(idx) {
@@ -3170,7 +3170,7 @@ async function openCoursewarePdf(name) {
       coursewarePdfLibPromise = import("https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.min.mjs").then(function (
         pdfjsLib
       ) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.min.mjs";
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.worker.min.mjs";
         return pdfjsLib;
       });
     }
@@ -3179,7 +3179,7 @@ async function openCoursewarePdf(name) {
     var pdfUrl = new URL(path, window.location.href).href;
     coursewarePdfDoc = await pdfjsLib.getDocument({
       url: pdfUrl,
-      cMapUrl: "./pdfjs/cmaps/",
+      cMapUrl: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/cmaps/",
       cMapPacked: true,
     }).promise;
     await renderCoursewarePage();
