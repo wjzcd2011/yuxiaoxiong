@@ -3058,7 +3058,7 @@ var COURSEWARE_PDFS = {
   三年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 上册.pdf",
   三年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 下册.pdf",
   四年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 上册.pdf",
-  四年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/ile/义务教育教科书 语文 四年级 下册.pdf",
+  四年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 下册.pdf",
   五年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 上册.pdf",
   五年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 下册.pdf",
   六年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 上册.pdf",
