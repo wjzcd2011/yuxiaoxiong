@@ -2214,6 +2214,47 @@ body.night .modal-hd {
 }
 
 @media (max-width: 720px) {
+  #ov-courseware {
+    align-items: stretch;
+  }
+
+  #ov-courseware .courseware-modal {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  #ov-courseware .modal-body,
+  #ov-courseware .courseware-reader {
+    min-height: 0;
+  }
+
+  #ov-courseware .modal-body {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 12px;
+  }
+
+  #ov-courseware .courseware-reader {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+  }
+
+  #ov-courseware .courseware-toolbar {
+    margin-bottom: 8px;
+  }
+
+  #ov-courseware .courseware-canvas-wrap {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    border-radius: 10px;
+  }
+
   #courseware-pdf-canvas-right {
     display: none !important;
   }
