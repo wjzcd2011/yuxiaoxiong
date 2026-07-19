@@ -2465,7 +2465,7 @@ function getBlockImagePath(char, word) {
   if (wordPinyin) {
     fileName += "-" + wordPinyin;
   }
-  return "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/blocks/" + encodeURIComponent(fileName || char) + ".png";
+  return "ttps://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/blocks/" + encodeURIComponent(fileName || char) + ".png";
 }
 
 async function learnBlockChar(idx) {
@@ -2551,7 +2551,7 @@ var guoxueImagePages = {};
 var GUOXUE_ITEMS = {
   三字经: {
     type: "image-pages",
-    prefix: "img/pg",
+    prefix: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/img/pg",
     suffix: ".jpg",
     pageCount: 118,
     alt: "三字经",
