@@ -2465,7 +2465,7 @@ function getBlockImagePath(char, word) {
   if (wordPinyin) {
     fileName += "-" + wordPinyin;
   }
-  return "ttps://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/blocks/" + encodeURIComponent(fileName || char) + ".png";
+  return "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/blocks/" + encodeURIComponent(fileName || char) + ".png";
 }
 
 async function learnBlockChar(idx) {
