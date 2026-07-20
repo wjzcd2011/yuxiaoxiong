@@ -3051,7 +3051,7 @@ function renderGuoxueTabs(active) {
 }
 
 var COURSEWARE_PDFS = {
-  一年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 一年级 上册.pdf",
+  一年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/语文一年级上册.pdf",
   一年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 一年级 下册.pdf",
   二年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 上册.pdf",
   二年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 下册.pdf",
