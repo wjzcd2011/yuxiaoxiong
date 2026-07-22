@@ -33,7 +33,7 @@ body {
 }
 
 header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #eab566, #ff0800);
   padding: 0 16px;
   height: 60px;
   display: flex;
@@ -100,10 +100,7 @@ header {
 }
 
 .hero {
-  background: linear-gradient(160deg,
-      #667eea 0%,
-      #764ba2 60%,
-      #a855f7 100%);
+  background: linear-gradient(160deg, #ffdda7 0%, #ffac40 60%, #ff1800 100%);
   padding: 28px 20px 52px;
   text-align: center;
   color: #fff;
@@ -981,7 +978,7 @@ html {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #f9a629, #ff0800);
+  background: linear-gradient(135deg, #eab566, #ff0800);
   color: #fff;
   border: none;
   border-radius: 13px;
@@ -1716,9 +1713,14 @@ body.night .modal-hd {
   justify-content: center;
 }
 
+.music-btn,
+.theme-btn {
+  display: none !important;
+}
+
 .daily-char-banner {
   margin: 0 14px;
-  background: linear-gradient(135deg, #ffd93d, #ff8fab);
+  background: linear-gradient(135deg, #ffd93d, #ff1800);
   border-radius: 20px;
   padding: 16px 20px;
   display: flex;
@@ -2214,47 +2216,6 @@ body.night .modal-hd {
 }
 
 @media (max-width: 720px) {
-  #ov-courseware {
-    align-items: stretch;
-  }
-
-  #ov-courseware .courseware-modal {
-    width: 100vw;
-    max-width: none;
-    height: 100vh;
-    height: 100dvh;
-    max-height: none;
-    border-radius: 0;
-  }
-
-  #ov-courseware .modal-body,
-  #ov-courseware .courseware-reader {
-    min-height: 0;
-  }
-
-  #ov-courseware .modal-body {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 12px 12px;
-  }
-
-  #ov-courseware .courseware-reader {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-  }
-
-  #ov-courseware .courseware-toolbar {
-    margin-bottom: 8px;
-  }
-
-  #ov-courseware .courseware-canvas-wrap {
-    flex: 1;
-    min-height: 0;
-    max-height: none;
-    border-radius: 10px;
-  }
-
   #courseware-pdf-canvas-right {
     display: none !important;
   }
@@ -2418,7 +2379,22 @@ body.night .modal-hd {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
   margin: 0 auto 14px;
+}
+
+.ai-tts-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-tts-btn::before,
+.poetry-read-btn::before {
+  content: "\f028";
+  font-family: "Font Awesome 6 Free";
+  font-size: 0.95em;
+  font-weight: 900;
 }
 
 .poetry-lines {
