@@ -387,7 +387,7 @@ async function callAIStream(prompt, sys, onChunk) {
             json.choices[0].delta &&
             json.choices[0].delta.content;
           if (content) onChunk(content);
-        } catch (e) { }
+        } catch (e) {}
       }
     }
   } catch (error) {
@@ -400,7 +400,7 @@ function aiCard(sid) {
   return (
     '<div class="ai-card"><div class="ai-hd"><div class="ai-avatar">🌟</div><span class="ai-name">郑老师</span><button class="ai-tts-btn" type="button" onclick="playAIText(\'' +
     sid +
-    '\', this)">🔊 朗读</button></div><div class="ai-text" id="' +
+    '\', this)">朗读</button></div><div class="ai-text" id="' +
     sid +
     '"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>'
   );
@@ -914,12 +914,12 @@ async function learnSceneChar(char, label, idx) {
   var full = "";
   await callAIStream(
     "请严格按下面固定版式介绍汉字「" +
-    char +
-    "」（" +
-    label +
-    "）：\n认识「" +
-    char +
-    "」字，小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词\n⑦ 生活：生活中哪里能看见\n⑧ 近反义：有近义词/反义词就写，没有就写“没有常用近反义词”",
+      char +
+      "」（" +
+      label +
+      "）：\n认识「" +
+      char +
+      "」字，小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词\n⑦ 生活：生活中哪里能看见\n⑧ 近反义：有近义词/反义词就写，没有就写“没有常用近反义词”",
     null,
     function (chunk) {
       full += chunk;
@@ -1028,19 +1028,19 @@ async function answerQuiz(el, choice) {
   await callAIStream(
     ok
       ? "小朋友答对了！「" +
-      q.char +
-      "」(" +
-      q.pinyin +
-      ") 意思是「" +
-      q.ans +
-      "」，夸夸他，再补充一个有趣知识或例句。"
+          q.char +
+          "」(" +
+          q.pinyin +
+          ") 意思是「" +
+          q.ans +
+          "」，夸夸他，再补充一个有趣知识或例句。"
       : "小朋友答错了，「" +
-      q.char +
-      "」(" +
-      q.pinyin +
-      ") 正确答案是「" +
-      q.ans +
-      "」，温柔鼓励并解释，举一个例句帮助记忆。",
+          q.char +
+          "」(" +
+          q.pinyin +
+          ") 正确答案是「" +
+          q.ans +
+          "」，温柔鼓励并解释，举一个例句帮助记忆。",
     null,
     function (chunk) {
       full += chunk;
@@ -1093,10 +1093,10 @@ async function doDict() {
   var full = "";
   await callAIStream(
     "请严格按下面固定版式介绍汉字「" +
-    char +
-    "」：\n认识「" +
-    char +
-    "」字,小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
+      char +
+      "」：\n认识「" +
+      char +
+      "」字,小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
     "你是专为1-6年级小朋友服务的汉字老师郑老师，温暖生动，控制在250字以内。",
     function (chunk) {
       full += chunk;
@@ -1290,7 +1290,7 @@ async function submitWrite() {
         d.choices[0] &&
         d.choices[0].message &&
         d.choices[0].message.content) ||
-      "无法评分"
+        "无法评分"
     );
     markLearned(writeTarget);
     addStar(2);
@@ -1469,37 +1469,37 @@ function renderStoryList() {
     '<div class="story-grid">' +
     (visible.length
       ? visible
-        .map(function (item) {
-          var s = item.story;
-          var chars = Array.isArray(s.chars)
-            ? s.chars
-            : String(s.title || "").split("");
-          return (
-            '<div class="story-card" onclick="openStoryDetail(' +
-            item.index +
-            ')">' +
-            '<div class="story-title">' +
-            escapeHtml(s.title) +
-            "</div>" +
-            '<div class="story-meta">' +
-            escapeHtml(s.pinyin || "") +
-            "</div>" +
-            '<div class="story-chars">' +
-            chars
-              .slice(0, 4)
-              .map(function (c) {
-                return (
-                  '<div class="story-char-badge">' + escapeHtml(c) + "</div>"
-                );
-              })
-              .join("") +
-            "</div>" +
-            '<div class="story-preview">' +
-            escapeHtml(s.meaning || s.detail || "") +
-            "</div></div>"
-          );
-        })
-        .join("")
+          .map(function (item) {
+            var s = item.story;
+            var chars = Array.isArray(s.chars)
+              ? s.chars
+              : String(s.title || "").split("");
+            return (
+              '<div class="story-card" onclick="openStoryDetail(' +
+              item.index +
+              ')">' +
+              '<div class="story-title">' +
+              escapeHtml(s.title) +
+              "</div>" +
+              '<div class="story-meta">' +
+              escapeHtml(s.pinyin || "") +
+              "</div>" +
+              '<div class="story-chars">' +
+              chars
+                .slice(0, 4)
+                .map(function (c) {
+                  return (
+                    '<div class="story-char-badge">' + escapeHtml(c) + "</div>"
+                  );
+                })
+                .join("") +
+              "</div>" +
+              '<div class="story-preview">' +
+              escapeHtml(s.meaning || s.detail || "") +
+              "</div></div>"
+            );
+          })
+          .join("")
       : '<div class="story-empty">没有找到相关成语</div>') +
     "</div>" +
     (list.length > storyVisibleCount
@@ -1605,17 +1605,17 @@ async function openStoryDetail(i) {
     storySection("识记小方法", s.memoryTip) +
     (examples.length
       ? '<div class="story-section"><div class="story-section-title">基础例句</div><ul class="story-example-list">' +
-      examples
-        .map(function (ex) {
-          return "<li>" + escapeHtml(ex) + "</li>";
-        })
-        .join("") +
-      "</ul></div>"
+        examples
+          .map(function (ex) {
+            return "<li>" + escapeHtml(ex) + "</li>";
+          })
+          .join("") +
+        "</ul></div>"
       : "") +
     (ageHtml
       ? '<div class="story-section"><div class="story-section-title">分层范文句</div><ul class="story-example-list">' +
-      ageHtml +
-      "</ul></div>"
+        ageHtml +
+        "</ul></div>"
       : "") +
     '</div><div style="text-align:center;margin:12px 0;"><button class="btn-primary" onclick="analyzeStory(' +
     i +
@@ -1635,16 +1635,16 @@ async function analyzeStory(i) {
   var full = "";
   await callAIStream(
     "请分析成语「" +
-    s.title +
-    "」。资料：释义=" +
-    (s.meaning || "") +
-    "；详细解释=" +
-    (s.detail || "") +
-    "；出处=" +
-    (s.source || "") +
-    "；用法=" +
-    (s.usage || "") +
-    "。请按顺序讲清楚：①意思 ②故事或来源 ③小朋友怎么用 ④它告诉我们的道理。",
+      s.title +
+      "」。资料：释义=" +
+      (s.meaning || "") +
+      "；详细解释=" +
+      (s.detail || "") +
+      "；出处=" +
+      (s.source || "") +
+      "；用法=" +
+      (s.usage || "") +
+      "。请按顺序讲清楚：①意思 ②故事或来源 ③小朋友怎么用 ④它告诉我们的道理。",
     "你是专门帮小朋友学成语的郑老师，讲解生动，适合小学生。回答要规范分条，控制在300字以内。",
     function (chunk) {
       full += chunk;
@@ -1757,8 +1757,8 @@ async function showPhonics(py, words, el) {
   var full = "";
   await callAIStream(
     "教小朋友学拼音「" +
-    py +
-    "」的发音：①怎么发音（口型）②举2-3个含这个音的字 ③一个记忆发音的小技巧，生动活泼适合小学生。",
+      py +
+      "」的发音：①怎么发音（口型）②举2-3个含这个音的字 ③一个记忆发音的小技巧，生动活泼适合小学生。",
     null,
     function (chunk) {
       full += chunk;
@@ -1779,8 +1779,8 @@ function filterNB() {
 function renderNoteBook(filter) {
   var show = filter
     ? learned.filter(function (c) {
-      return c.includes(filter);
-    })
+        return c.includes(filter);
+      })
     : learned;
   var nbCountEl = document.getElementById("nb-count");
   if (nbCountEl) nbCountEl.textContent = learned.length;
@@ -1859,10 +1859,10 @@ function showRadicalDetail(radical) {
     '<div class="radical-examples">' +
     (info.words.length
       ? info.words
-        .map(function (w) {
-          return '<span class="radical-example">' + w + "</span>";
-        })
-        .join("")
+          .map(function (w) {
+            return '<span class="radical-example">' + w + "</span>";
+          })
+          .join("")
       : '<span class="radical-example">暂无本地例字</span>') +
     "</div>" +
     '<button class="btn-primary" onclick="analyzeRadical(\'' +
@@ -1882,14 +1882,14 @@ async function analyzeRadical(radical) {
   var full = "";
   await callAIStream(
     "请给小学生讲解部首「" +
-    radical +
-    "」。名称：" +
-    info.name +
-    "。含义：" +
-    info.meaning +
-    "。本地例字：" +
-    info.words.join("、") +
-    "。请补充更多常见字和词语，并说明这个部首常表示什么。",
+      radical +
+      "」。名称：" +
+      info.name +
+      "。含义：" +
+      info.meaning +
+      "。本地例字：" +
+      info.words.join("、") +
+      "。请补充更多常见字和词语，并说明这个部首常表示什么。",
     "你是专门教1-6年级小朋友识字的郑老师。回答要分条、简洁、生动，控制在220字以内。",
     function (chunk) {
       full += chunk;
@@ -2049,7 +2049,7 @@ function playSfx(type) {
       osc.start();
       osc.stop(audioCtx.currentTime + 0.2);
     }
-  } catch (e) { }
+  } catch (e) {}
 }
 
 var winAction = null;
@@ -2220,10 +2220,10 @@ async function checkSentence() {
   markLearned(d.key);
   await callAIStream(
     "小朋友用「" +
-    d.key +
-    "」造句：「" +
-    composed +
-    "」。请：①判断是否通顺正确 ②给出1-5星评分 ③温柔夸奖或纠正 ④给出一个更好的示范句。适合小学生，加emoji。",
+      d.key +
+      "」造句：「" +
+      composed +
+      "」。请：①判断是否通顺正确 ②给出1-5星评分 ③温柔夸奖或纠正 ④给出一个更好的示范句。适合小学生，加emoji。",
     null,
     function (chunk) {
       full += chunk;
@@ -2305,7 +2305,7 @@ async function submitImgRead() {
         d.choices[0] &&
         d.choices[0].message &&
         d.choices[0].message.content) ||
-      "识别失败请重试"
+        "识别失败请重试"
     );
     addStar(2);
     playSfx("star");
@@ -2371,8 +2371,8 @@ function initMatch() {
   BLOCK_WORD_MAP = window.BLOCK_WORD_MAP || BLOCK_WORD_MAP || {};
   var pool = Object.keys(BLOCK_WORD_MAP).length
     ? Object.keys(BLOCK_WORD_MAP).map(function (char) {
-      return { char: char, meaning: BLOCK_WORD_MAP[char] };
-    })
+        return { char: char, meaning: BLOCK_WORD_MAP[char] };
+      })
     : MATCH_POOL.slice();
   matchLeft = pool.map(function (p, i) {
     var blockInfo = parseBlockWord(BLOCK_WORD_MAP[p.char] || p.meaning);
@@ -2465,7 +2465,11 @@ function getBlockImagePath(char, word) {
   if (wordPinyin) {
     fileName += "-" + wordPinyin;
   }
-  return "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/blocks/" + encodeURIComponent(fileName || char) + ".png";
+  return (
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/blocks/" +
+    encodeURIComponent(fileName || char) +
+    ".png"
+  );
 }
 
 async function learnBlockChar(idx) {
@@ -2477,12 +2481,12 @@ async function learnBlockChar(idx) {
   var text = "";
   await callAIStream(
     "请用儿童能听懂的话讲解汉字“" +
-    item.char +
-    "”，拼音是" +
-    item.pinyin +
-    "，组词是“" +
-    item.word +
-    "”。要求：①字形 ②拼音 ③组词 ④例句 ⑤记忆小技巧，每点单独换行，控制在160字以内。",
+      item.char +
+      "”，拼音是" +
+      item.pinyin +
+      "，组词是“" +
+      item.word +
+      "”。要求：①字形 ②拼音 ③组词 ④例句 ⑤记忆小技巧，每点单独换行，控制在160字以内。",
     null,
     function (chunk) {
       text += chunk;
@@ -2799,8 +2803,8 @@ function renderPoetryLine(line, pinyin) {
   var pinyinParts = Array.isArray(pinyin)
     ? pinyin
     : String(pinyin || "")
-      .trim()
-      .split(/\s+/);
+        .trim()
+        .split(/\s+/);
   return (
     '<div class="poetry-line">' +
     '<div class="poetry-char-line">' +
@@ -2848,7 +2852,7 @@ function showPoetryDetail(poemId) {
     "</div>" +
     '<button class="btn-primary poetry-read-btn" data-poem-id="' +
     escapeHtml(String(poem.id)) +
-    '" onclick="playPoetryTextByButton(this)">朗读诗词 🔊</button>' +
+    '" onclick="playPoetryTextByButton(this)">朗读诗词</button>' +
     '<div class="poetry-lines">' +
     lines
       .map(function (line, index) {
@@ -2905,10 +2909,10 @@ async function analyzePoetryById(poemId) {
   var text = "";
   await callAIStream(
     "请给1-6年级小朋友讲解古诗《" +
-    item.title +
-    "》：" +
-    (item.content || []).join("") +
-    "。要求：①诗意 ②重点字词 ③画面感 ④背诵小技巧，每点单独换行，控制在200字以内。",
+      item.title +
+      "》：" +
+      (item.content || []).join("") +
+      "。要求：①诗意 ②重点字词 ③画面感 ④背诵小技巧，每点单独换行，控制在200字以内。",
     null,
     function (chunk) {
       text += chunk;
@@ -3051,24 +3055,42 @@ function renderGuoxueTabs(active) {
 }
 
 var COURSEWARE_PDFS = {
-  一年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/语文一年级上册.pdf",
-  一年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 一年级 下册.pdf",
-  二年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 上册.pdf",
-  二年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 下册.pdf",
-  三年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 上册.pdf",
-  三年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 下册.pdf",
-  四年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 上册.pdf",
-  四年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 下册.pdf",
-  五年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 上册.pdf",
-  五年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 下册.pdf",
-  六年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 上册.pdf",
-  六年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 下册.pdf",
-  七年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 七年级 上册.pdf",
-  七年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 七年级 下册.pdf",
-  八年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 八年级 上册.pdf",
-  八年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 八年级 下册.pdf",
-  九年级上: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 九年级 上册.pdf",
-  九年级下: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 九年级 下册.pdf",
+  一年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/语文一年级上册.pdf",
+  一年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 一年级 下册.pdf",
+  二年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 上册.pdf",
+  二年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 二年级 下册.pdf",
+  三年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 上册.pdf",
+  三年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 三年级 下册.pdf",
+  四年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 上册.pdf",
+  四年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 四年级 下册.pdf",
+  五年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 上册.pdf",
+  五年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 五年级 下册.pdf",
+  六年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 上册.pdf",
+  六年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 六年级 下册.pdf",
+  七年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 七年级 上册.pdf",
+  七年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 七年级 下册.pdf",
+  八年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 八年级 上册.pdf",
+  八年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 八年级 下册.pdf",
+  九年级上:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 九年级 上册.pdf",
+  九年级下:
+    "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/file/义务教育教科书 语文 九年级 下册.pdf",
 };
 var COURSEWARE_STAGES = {
   小学: [
@@ -3167,19 +3189,18 @@ async function openCoursewarePdf(name) {
   updateCoursewareControls();
   try {
     if (!coursewarePdfLibPromise) {
-      coursewarePdfLibPromise = import("https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.min.mjs").then(function (
+      coursewarePdfLibPromise = import("./pdfjs/pdf.min.mjs").then(function (
         pdfjsLib
       ) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.worker.min.mjs";
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.min.mjs";
         return pdfjsLib;
       });
     }
     var pdfjsLib = await coursewarePdfLibPromise;
     if (coursewarePdfDoc) await coursewarePdfDoc.destroy();
-    var pdfUrl = new URL(path, window.location.href).href;
     coursewarePdfDoc = await pdfjsLib.getDocument({
-      url: pdfUrl,
-      cMapUrl: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/cmaps/",
+      url: path,
+      cMapUrl: "./pdfjs/cmaps/",
       cMapPacked: true,
     }).promise;
     await renderCoursewarePage();
@@ -3352,8 +3373,8 @@ async function searchModernDict() {
   var text = "";
   await callAIStream(
     "请按现代汉语词典风格解释“" +
-    word +
-    "”。请严格按以下格式回答，每项单独换行，不要使用①②③④⑤等数字编号：\n拼音：\n释义：\n组词或搭配：\n例句：\n近义词/反义词：\n没有的项目写“无”。内容适合小学生理解。",
+      word +
+      "”。请严格按以下格式回答，每项单独换行，不要使用①②③④⑤等数字编号：\n拼音：\n释义：\n组词或搭配：\n例句：\n近义词/反义词：\n没有的项目写“无”。内容适合小学生理解。",
     "你是严谨的现代汉语词典助手，解释要准确、简洁、适合小学生。",
     function (chunk) {
       text += chunk;
@@ -3367,6 +3388,8 @@ var strokeCharIdx = 0,
   currentStrokeGrade = "一年级",
   strokeWriter = null,
   strokeCharDataCache = {};
+var strokeCharDataPromises = {};
+var strokeAIRequestId = 0;
 
 function openStroke() {
   strokeCharIdx = 0;
@@ -3529,6 +3552,24 @@ function applyStrokeCharacterData(d, charData) {
   strokeStep = Math.max(0, Math.min(strokeStep, d.count));
 }
 
+function getStrokeCharacterData(char) {
+  if (strokeCharDataCache[char]) {
+    return Promise.resolve(strokeCharDataCache[char]);
+  }
+  if (strokeCharDataPromises[char]) {
+    return strokeCharDataPromises[char];
+  }
+  strokeCharDataPromises[char] = HanziWriter.loadCharacterData(char)
+    .then(function (charData) {
+      strokeCharDataCache[char] = charData;
+      return charData;
+    })
+    .finally(function () {
+      delete strokeCharDataPromises[char];
+    });
+  return strokeCharDataPromises[char];
+}
+
 function showStrokePreview(step) {
   var d = getCurrentStrokeItem();
   var el = document.getElementById("stroke-char-show");
@@ -3555,10 +3596,9 @@ function showStrokePreview(step) {
   }
 
   el.textContent = "加载中";
-  HanziWriter.loadCharacterData(char)
+  getStrokeCharacterData(char)
     .then(function (charData) {
       if (getCurrentStrokeItem().char !== char) return;
-      strokeCharDataCache[char] = charData;
       applyStrokeCharacterData(d, charData);
       updateStrokeProgress(d);
       el.innerHTML = renderStrokePreviewSvg(charData, strokeStep);
@@ -3646,34 +3686,47 @@ function autoPlayStroke() {
 }
 
 async function loadStrokeAI() {
+  var requestId = ++strokeAIRequestId;
   var d = getCurrentStrokeItem();
+  var char = d.char;
+  document.getElementById("stroke-ai").innerHTML = aiCard("stroke-stream");
   if (!d.count && window.HanziWriter && HanziWriter.loadCharacterData) {
     try {
-      var charData =
-        strokeCharDataCache[d.char] ||
-        (await HanziWriter.loadCharacterData(d.char));
-      strokeCharDataCache[d.char] = charData;
+      var charData = await getStrokeCharacterData(char);
+      if (
+        requestId !== strokeAIRequestId ||
+        getCurrentStrokeItem().char !== char
+      )
+        return;
       applyStrokeCharacterData(d, charData);
       updateStrokeProgress(d);
-    } catch (e) { }
+    } catch (e) {}
   }
-  document.getElementById("stroke-ai").innerHTML = aiCard("stroke-stream");
-  document.getElementById("stroke-stream").innerHTML = "";
+  if (
+    requestId !== strokeAIRequestId ||
+    getCurrentStrokeItem().char !== char
+  )
+    return;
   var full = "";
   await callAIStream(
     "介绍汉字「" +
-    d.char +
-    "」(" +
-    d.pinyin +
-    ") 的笔顺：共" +
-    d.count +
-    "笔，依次是：" +
-    d.strokes.join("、") +
-    "。字形含义：" +
-    d.tip +
-    "。请用可爱的语言教小学生记忆这个字和笔顺，加emoji，100字以内。",
+      char +
+      "」(" +
+      d.pinyin +
+      ") 的笔顺：共" +
+      d.count +
+      "笔，依次是：" +
+      d.strokes.join("、") +
+      "。字形含义：" +
+      d.tip +
+      "。请用可爱的语言教小学生记忆这个字和笔顺，加emoji，100字以内。",
     null,
     function (chunk) {
+      if (
+        requestId !== strokeAIRequestId ||
+        getCurrentStrokeItem().char !== char
+      )
+        return;
       full += chunk;
       setAIText(document.getElementById("stroke-stream"), full);
     }
