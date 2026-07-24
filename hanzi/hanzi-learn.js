@@ -341,9 +341,14 @@ function setStatus(t, txt) {
 // }
 
 const WORKER_URL = "https://yuwen-api-vwrbnprcpt.cn-hangzhou.fcapp.run";
-async function callAIStream(prompt, sys, onChunk) {
+async function callAIStream(prompt, sys, onChunk, options) {
   const system = sys || "你是专门帮助1-6年级小朋友学习汉字的老师郑老师。";
-
+  options = options || {};
+  const useStream = options.stream !== false;
+  const controller = new AbortController();
+  const timeout = setTimeout(function () {
+    controller.abort("timeout");
+  }, options.timeout || 20000);
   try {
     const response = await fetch(`${WORKER_URL}/api/chat`, {
       method: "POST",
@@ -353,18 +358,50 @@ async function callAIStream(prompt, sys, onChunk) {
           { role: "system", content: system },
           { role: "user", content: prompt },
         ],
-        stream: true,
-        max_tokens: 400,
+        stream: useStream,
+        max_tokens: options.maxTokens || 400,
       }),
+      signal: controller.signal,
     });
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
 
+    if (!useStream) {
+      const json = await response.json();
+      const content =
+        json.choices &&
+        json.choices[0] &&
+        json.choices[0].message &&
+        json.choices[0].message.content;
+      if (!content) throw new Error("AI没有返回讲解内容");
+      onChunk(content);
+      return "success";
+    }
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
+
+    function processLine(line) {
+      if (!line.startsWith("data:")) return false;
+      const data = line.slice(5).trim();
+      if (data === "[DONE]") return true;
+
+      try {
+        const json = JSON.parse(data);
+        const content =
+          json.choices &&
+          json.choices[0] &&
+          json.choices[0].delta &&
+          json.choices[0].delta.content;
+        if (content) onChunk(content);
+      } catch (e) {
+        console.warn("AI流数据解析失败:", data);
+      }
+      return false;
+    }
 
     while (true) {
       const { done, value } = await reader.read();
@@ -375,24 +412,22 @@ async function callAIStream(prompt, sys, onChunk) {
       buffer = lines.pop();
 
       for (const line of lines) {
-        if (!line.startsWith("data:")) continue;
-        const data = line.slice(5).trim();
-        if (data === "[DONE]") return;
-
-        try {
-          const json = JSON.parse(data);
-          const content =
-            json.choices &&
-            json.choices[0] &&
-            json.choices[0].delta &&
-            json.choices[0].delta.content;
-          if (content) onChunk(content);
-        } catch (e) {}
+        if (processLine(line.trim())) return "success";
       }
     }
+    buffer += decoder.decode();
+    if (buffer.trim()) processLine(buffer.trim());
+    return "success";
   } catch (error) {
     console.error("AI调用失败:", error);
-    onChunk(`❌ 请求失败: ${error.message}`);
+    onChunk(
+      controller.signal.aborted
+        ? "\n⚠️ AI响应超时，请稍后重新点击这个字"
+        : `\n❌ 请求失败: ${error.message}`
+    );
+    return controller.signal.aborted ? "timeout" : "error";
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -527,7 +562,6 @@ async function playAIText(textId, btn) {
 }
 
 function closeAll() {
-  if (typeof closeCoursewarePdf === "function") closeCoursewarePdf();
   document.querySelectorAll(".overlay").forEach(function (o) {
     o.classList.remove("open");
   });
@@ -579,11 +613,6 @@ function markLearned(char) {
 
 function updateProgress() {
   document.getElementById("today-count").textContent = todayCount;
-  document.getElementById("hero-count").textContent = todayCount;
-  document.getElementById("hero-left").textContent = Math.max(
-    0,
-    10 - todayCount
-  );
   document.getElementById("progress").style.width =
     (todayCount / 10) * 100 + "%";
 }
@@ -1954,7 +1983,10 @@ function initDailyChar() {
     "<br>例：" +
     dc.example +
     "</p>" +
-    "</div></div>";
+    "</div>" +
+    '<div class="daily-char-action"><span>点击学习</span>' +
+    '<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></div>' +
+    "</div>";
 }
 
 var isNight = localStorage.getItem("bl_night") === "1";
@@ -2796,7 +2828,11 @@ function changePoetryPage(delta) {
   renderPoetryPagination();
 }
 
-function renderPoetryLine(line, pinyin) {
+function isPoetryBreakPunctuation(char) {
+  return "，。！？；：、,.!?;:“”‘’（）()《》〈〉【】〔〕—…·".indexOf(char) !== -1;
+}
+
+function renderPoetryLine(line, pinyin, shouldBreakAfterPunctuation) {
   var chars = String(line || "")
     .replace(/\s/g, "")
     .split("");
@@ -2818,7 +2854,12 @@ function renderPoetryLine(line, pinyin) {
           '<span class="poetry-tianzigrid"><span>' +
           escapeHtml(char) +
           "</span></span>" +
-          "</span>"
+          "</span>" +
+          (shouldBreakAfterPunctuation &&
+          isPoetryBreakPunctuation(char) &&
+          index < chars.length - 1
+            ? '<span class="poetry-line-break"></span>'
+            : "")
         );
       })
       .join("") +
@@ -2838,6 +2879,7 @@ function showPoetryDetail(poemId) {
   if (!poem) return;
   var lines = poem.content || [];
   var pinyin = poem.pinyin || [];
+  var shouldBreakAfterPunctuation = poemHasType(poem, "song");
   document.getElementById("poetry-list").innerHTML = "";
   document.getElementById("poetry-pagination").innerHTML = "";
   document.getElementById("poetry-ai").innerHTML = "";
@@ -2856,7 +2898,11 @@ function showPoetryDetail(poemId) {
     '<div class="poetry-lines">' +
     lines
       .map(function (line, index) {
-        return renderPoetryLine(line, pinyin[index]);
+        return renderPoetryLine(
+          line,
+          pinyin[index],
+          shouldBreakAfterPunctuation
+        );
       })
       .join("") +
     "</div>" +
@@ -3189,10 +3235,11 @@ async function openCoursewarePdf(name) {
   updateCoursewareControls();
   try {
     if (!coursewarePdfLibPromise) {
-      coursewarePdfLibPromise = import("https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.min.mjs").then(function (
-        pdfjsLib
-      ) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.worker.min.mjs";
+      coursewarePdfLibPromise = import(
+        "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.min.mjs"
+      ).then(function (pdfjsLib) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/pdf.worker.min.mjs";
         return pdfjsLib;
       });
     }
@@ -3200,7 +3247,8 @@ async function openCoursewarePdf(name) {
     if (coursewarePdfDoc) await coursewarePdfDoc.destroy();
     coursewarePdfDoc = await pdfjsLib.getDocument({
       url: path,
-      cMapUrl: "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/cmaps/",
+      cMapUrl:
+        "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/pdfjs/cmaps/",
       cMapPacked: true,
     }).promise;
     await renderCoursewarePage();
@@ -3305,9 +3353,11 @@ function updateCoursewareControls() {
 }
 
 function closeCoursewarePdf() {
-  coursewareRenderTasks.forEach(function (task) {
-    task.cancel();
-  });
+  if (Array.isArray(coursewareRenderTasks)) {
+    coursewareRenderTasks.forEach(function (task) {
+      if (task && typeof task.cancel === "function") task.cancel();
+    });
+  }
   coursewareRenderTasks = [];
   if (coursewarePdfDoc) coursewarePdfDoc.destroy();
   coursewarePdfDoc = null;
@@ -3315,6 +3365,11 @@ function closeCoursewarePdf() {
   var reader = document.getElementById("courseware-reader");
   if (list) list.hidden = false;
   if (reader) reader.hidden = true;
+}
+
+function closeCoursewareModal() {
+  closeCoursewarePdf();
+  closeAll();
 }
 
 function handleCoursewareKeydown(e) {
@@ -3390,6 +3445,7 @@ var strokeCharIdx = 0,
   strokeCharDataCache = {};
 var strokeCharDataPromises = {};
 var strokeAIRequestId = 0;
+var strokeAITextCache = {};
 
 function openStroke() {
   strokeCharIdx = 0;
@@ -3702,13 +3758,28 @@ async function loadStrokeAI() {
       updateStrokeProgress(d);
     } catch (e) {}
   }
-  if (
-    requestId !== strokeAIRequestId ||
-    getCurrentStrokeItem().char !== char
-  )
+  if (requestId !== strokeAIRequestId || getCurrentStrokeItem().char !== char)
     return;
-  var full = "";
-  await callAIStream(
+  var out = document.getElementById("stroke-stream");
+  if (strokeAITextCache[char]) {
+    setAIText(out, strokeAITextCache[char]);
+    return;
+  }
+  var full =
+    "「" +
+    char +
+    "」读作 " +
+    d.pinyin +
+    "，共 " +
+    d.count +
+    " 笔。\n笔顺：" +
+    d.strokes.join("、") +
+    "。\n记忆提示：" +
+    d.tip +
+    "。\n\n郑老师正在补充讲解……";
+  setAIText(out, full);
+  var aiText = "";
+  var result = await callAIStream(
     "介绍汉字「" +
       char +
       "」(" +
@@ -3727,10 +3798,33 @@ async function loadStrokeAI() {
         getCurrentStrokeItem().char !== char
       )
         return;
-      full += chunk;
-      setAIText(document.getElementById("stroke-stream"), full);
-    }
+      aiText += chunk;
+      var displayText = aiText.replace(/^\s+/, "");
+      setAIText(document.getElementById("stroke-stream"), displayText);
+    },
+    { stream: false, timeout: 12000, maxTokens: 180 }
   );
+  if (
+    result === "success" &&
+    aiText &&
+    requestId === strokeAIRequestId &&
+    getCurrentStrokeItem().char === char
+  ) {
+    strokeAITextCache[char] = aiText.replace(/^\s+/, "");
+  }
+  if (
+    result !== "success" &&
+    requestId === strokeAIRequestId &&
+    getCurrentStrokeItem().char === char
+  ) {
+    setAIText(
+      document.getElementById("stroke-stream"),
+      full +
+        (result === "timeout"
+          ? "\n\n⚠️ AI讲解等待超时，请稍后重新点击这个字。"
+          : "\n\n❌ AI讲解加载失败，请检查网络后重试。")
+    );
+  }
 }
 
 initDailyChar();
