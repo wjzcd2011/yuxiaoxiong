@@ -1,10 +1,11 @@
-var apiKey = localStorage.getItem("bl_key") || "";
-var stars = +localStorage.getItem("bl_stars") || 0;
-var streak = +localStorage.getItem("bl_streak") || 0;
+
 var todayCount = +localStorage.getItem("bl_today") || 0;
 var learned = JSON.parse(localStorage.getItem("bl_learned") || "[]");
 var dictHistory = JSON.parse(localStorage.getItem("bl_dict_hist") || "[]");
 var weekData = JSON.parse(localStorage.getItem("bl_week") || "[0,0,0,0,0,0,0]");
+var favorites = JSON.parse(localStorage.getItem("bl_favorites") || "[]");
+if (!Array.isArray(favorites)) favorites = [];
+var currentFavoriteDetailKey = "";
 var quizRound = 1,
   quizStreak = 0,
   currentAnswer = "",
@@ -18,6 +19,41 @@ var writeIdx = 0,
 var currentPhonicsTab = "shengmu";
 var phonicsAudio = null;
 var currentCategory = "全部";
+var currentNoteBookChar = "";
+var CLOUDBASE_ENV_ID = "hanzi-study-d0g6d8fz642cf6bc9";
+var cloudbaseApp = null;
+var cloudbaseAuth = null;
+var cloudbaseDb = null;
+var cloudbaseConnected = false;
+var cloudbaseConnecting = false;
+var cloudbaseLoginScope = "";
+var cloudVerification = { phone: null, email: null };
+var cloudRegistrationVerification = null;
+var cloudRegistrationAccount = null;
+var cloudPasswordResetVerification = null;
+var cloudBindVerification = { phone: null, email: null, emailAddress: "" };
+var cloudUserProfileId = "";
+var cloudLearningRecordId = "";
+var cloudLearningSyncing = false;
+var cloudLearningSyncTimer = null;
+var cloudFavoritesDirty = false;
+var cloudFavoritesVersion = 0;
+var VISION_MODEL = "qwen3.7-plus";
+
+[
+  "bl_key",
+  "bl_vl_model",
+  "bl_text_model",
+  "bl_night",
+  "bl_stars",
+  "bl_streak",
+  "bl_badges",
+  "bl_daily_done",
+  "bl_quiz_correct",
+  "bl_story_count",
+].forEach(function (key) {
+  localStorage.removeItem(key);
+});
 
 // ----- 场景分类数据 -----
 
@@ -88,257 +124,6 @@ var PHONICS = {
     ],
   },
 };
-
-var BADGES = [
-  {
-    id: "first",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_beginner.png",
-    label: "初学者",
-    req: 1,
-    desc: "学会第1个字",
-  },
-  {
-    id: "ten",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_crossword_expert.png",
-    label: "十字达人",
-    req: 10,
-    desc: "学会10个字",
-  },
-  {
-    id: "thirty",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_character_hero.png",
-    label: "汉字小将",
-    req: 30,
-    desc: "学会30个字",
-  },
-  {
-    id: "hundred",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_character_master.png",
-    label: "汉字高手",
-    req: 100,
-    desc: "学会100个字",
-  },
-  {
-    id: "streak3",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_daily_checkin.png",
-    label: "坚持三天",
-    req: 3,
-    desc: "连续学习3天",
-    type: "streak",
-  },
-  {
-    id: "quiz10",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_quiz_master.png",
-    label: "答题王",
-    req: 10,
-    desc: "答对10道题",
-    type: "quiz",
-  },
-  {
-    id: "story",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_story_lover.png",
-    label: "故事迷",
-    req: 1,
-    desc: "读完一个成语故事",
-    type: "story",
-  },
-];
-
-var DAILY_TASKS = [
-  {
-    id: "scene",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_daily_scene.png",
-    name: "场景认字一次",
-    stars: 3,
-  },
-  {
-    id: "quiz3",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_daily_quiz.png",
-    name: "闯关答对3题",
-    stars: 5,
-  },
-  {
-    id: "dict1",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_daily_dict.png",
-    name: "查一个AI字典",
-    stars: 2,
-  },
-  {
-    id: "write1",
-    iconImg:
-      "https://cdn.jsdelivr.net/gh/wjzcd2011/yuxiaoxiong/hanzi/icon_daily_write.png",
-    name: "练习写一个字",
-    stars: 4,
-  },
-];
-
-var DEFAULT_VL_MODEL = "qwen3.7-plus";
-var DEFAULT_TEXT_MODEL = "qwen3.6-plus";
-
-function selectedSettingModel(selectId, storageKey, fallback) {
-  var saved = localStorage.getItem(storageKey);
-  var select = document.getElementById(selectId);
-  if (!select) return saved || fallback;
-  for (var i = 0; i < select.options.length; i++) {
-    if (select.options[i].value === saved) return saved;
-  }
-  return select.value || fallback;
-}
-
-function vlModel() {
-  return selectedSettingModel(
-    "setting-vl-model",
-    "bl_vl_model",
-    DEFAULT_VL_MODEL
-  );
-}
-
-function vlTextModel() {
-  return selectedSettingModel(
-    "setting-text-model",
-    "bl_text_model",
-    DEFAULT_TEXT_MODEL
-  );
-}
-
-// ---- 设置面板 ----
-function openSetting() {
-  document.getElementById("setting-api-key").value = apiKey || "";
-  document.getElementById("setting-vl-model").value = vlModel();
-  document.getElementById("setting-text-model").value = vlTextModel();
-  updateSettingStatus();
-  document.getElementById("setting-overlay").classList.add("open");
-}
-
-function closeSetting() {
-  document.getElementById("setting-overlay").classList.remove("open");
-}
-
-function updateSettingStatus() {
-  var el = document.getElementById("setting-status");
-  var key = document.getElementById("setting-api-key").value.trim();
-  if (!key) {
-    el.className = "status empty";
-    el.textContent = "未配置";
-  } else if (key.startsWith("sk-")) {
-    el.className = "status ok";
-    el.textContent = "已配置 ✓";
-  } else {
-    el.className = "status err";
-    el.textContent = "格式不对";
-  }
-}
-
-function saveSetting() {
-  var key = document.getElementById("setting-api-key").value.trim();
-  if (!key.startsWith("sk-")) {
-    updateSettingStatus();
-    return;
-  }
-  apiKey = key;
-  localStorage.setItem("bl_key", key);
-  localStorage.setItem(
-    "bl_vl_model",
-    document.getElementById("setting-vl-model").value
-  );
-  localStorage.setItem(
-    "bl_text_model",
-    document.getElementById("setting-text-model").value
-  );
-  updateSettingStatus();
-  toast("✅ 设置已保存");
-  closeSetting();
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("setting-api-key")
-    .addEventListener("input", updateSettingStatus);
-});
-
-function setStatus(t, txt) {
-  var el = document.getElementById("api-status");
-  if (el) {
-    el.className = "api-status " + t;
-    el.textContent = txt;
-  }
-}
-
-// async function callAIStream(prompt, sys, onChunk) {
-//   if (!apiKey) {
-//     onChunk("请先点击⚙️设置百炼 API Key 哦～ 🔑");
-//     return;
-//   }
-//   var formatRule =
-//     "统一版式要求：使用纯文本；不要 Markdown；不要 ** 加粗；不要开场白；不要把多个要点挤在一行；每个编号要点必须单独换行；编号统一使用 ①②③④⑤⑥⑦⑧⑨；标题最多一行。";
-//   var system =
-//     (sys ||
-//       "你是专门帮助1-6年级小朋友学习汉字的老师郑老师。用简单生动的语言，多用比喻和小故事。回答控制在200字以内。") +
-//     formatRule;
-//   try {
-//     var r = await fetch(
-//       "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: "Bearer " + apiKey,
-//         },
-//         body: JSON.stringify({
-//           model: vlTextModel(),
-//           messages: [
-//             { role: "system", content: system },
-//             { role: "user", content: prompt },
-//           ],
-//           max_tokens: 400,
-//           temperature: 0.85,
-//           stream: true,
-//         }),
-//       }
-//     );
-//     if (!r.ok) {
-//       onChunk("❌ API错误 " + r.status);
-//       return;
-//     }
-//     var reader = r.body.getReader();
-//     var dec = new TextDecoder();
-//     var buf = "";
-//     while (true) {
-//       var res = await reader.read();
-//       if (res.done) break;
-//       buf += dec.decode(res.value, { stream: true });
-//       var lines = buf.split("\n");
-//       buf = lines.pop();
-//       for (var i = 0; i < lines.length; i++) {
-//         var line = lines[i];
-//         if (!line.startsWith("data:")) continue;
-//         var json = line.slice(5).trim();
-//         if (json === "[DONE]") return;
-//         try {
-//           var o = JSON.parse(json);
-//           var d =
-//             o.choices &&
-//             o.choices[0] &&
-//             o.choices[0].delta &&
-//             o.choices[0].delta.content;
-//           if (d) onChunk(d);
-//         } catch (e) {}
-//       }
-//     }
-//   } catch (e) {
-//     onChunk("\n❌ 网络错误");
-//   }
-// }
 
 const WORKER_URL = "https://yuwen-api-vwrbnprcpt.cn-hangzhou.fcapp.run";
 async function callAIStream(prompt, sys, onChunk, options) {
@@ -571,6 +356,1433 @@ function openModal(id) {
   document.getElementById(id).classList.add("open");
 }
 
+function setCloudBaseStatus(status, title, message) {
+  var button = document.getElementById("cloud-account-btn");
+  var icon = document.getElementById("cloud-account-state-icon");
+  var retry = document.getElementById("cloud-account-retry");
+  var state = document.getElementById("cloud-account-state");
+  var tip = document.getElementById("cloud-account-tip");
+  var dot = document.getElementById("cloud-account-dot");
+  if (!button || !icon || !retry) return;
+
+  button.classList.remove("is-connecting", "is-connected");
+  icon.className = "fa-solid";
+  retry.hidden = true;
+
+  if (status === "connecting") {
+    button.classList.add("is-connecting");
+    icon.classList.add("fa-spinner", "fa-spin");
+  } else if (status === "connected") {
+    button.classList.add("is-connected");
+    icon.classList.add("fa-circle-check");
+  } else {
+    icon.classList.add("fa-circle-exclamation");
+    retry.hidden = false;
+  }
+
+  document.getElementById("cloud-account-state-title").textContent = title;
+  document.getElementById("cloud-account-state-text").textContent = message;
+  var isRegistered =
+    status === "connected" && cloudbaseLoginScope !== "anonymous";
+  state.hidden = isRegistered;
+  tip.hidden = isRegistered;
+  dot.hidden = isRegistered;
+  document.getElementById("cloud-login-panel").hidden = status !== "connected";
+  document.getElementById("cloud-logout-btn").hidden =
+    status !== "connected" || cloudbaseLoginScope === "anonymous";
+  if (status !== "connected") {
+    document.getElementById("cloud-login-panel").classList.remove("is-profile");
+    document.getElementById("cloud-profile-panel").hidden = true;
+  }
+}
+
+async function connectCloudBase(showResult) {
+  if (cloudbaseConnecting) return;
+  cloudbaseConnecting = true;
+  setCloudBaseStatus(
+    "connecting",
+    "正在连接云端",
+    "正在建立匿名学习账号，请稍候……"
+  );
+
+  try {
+    if (!window.cloudbase) {
+      throw new Error("CloudBase SDK加载失败");
+    }
+    if (!cloudbaseApp) {
+      cloudbaseApp = window.cloudbase.init({ env: CLOUDBASE_ENV_ID });
+      cloudbaseAuth = cloudbaseApp.auth();
+      cloudbaseDb = cloudbaseApp.database();
+    }
+
+    var loginState = await cloudbaseAuth.getLoginState();
+    if (!loginState) {
+      await cloudbaseAuth.signInAnonymously();
+    }
+    cloudbaseLoginScope = await cloudbaseAuth.loginScope();
+    cloudbaseConnected = true;
+    setCloudBaseStatus(
+      "connected",
+      cloudbaseLoginScope === "anonymous" ? "游客模式已连接" : "账号已登录",
+      cloudbaseLoginScope === "anonymous"
+        ? "可继续学习，也可以在下方登录正式账号。"
+        : "当前正式账号已连接。"
+    );
+    await renderCloudProfile();
+    console.info("CloudBase连接成功");
+    if (showResult) toast("✅ CloudBase连接成功");
+  } catch (error) {
+    cloudbaseConnected = false;
+    setCloudBaseStatus(
+      "error",
+      "云端连接失败",
+      error && error.message ? error.message : "请检查网络和CloudBase登录配置"
+    );
+    console.error("CloudBase连接失败", error);
+    if (showResult) toast("CloudBase连接失败，请查看提示");
+  } finally {
+    cloudbaseConnecting = false;
+  }
+}
+
+function openCloudAccount() {
+  openModal("ov-cloud-account");
+  if (!cloudbaseConnected) connectCloudBase(false);
+}
+
+function maskCloudPhone(value) {
+  if (!value) return "未绑定";
+  var phone = value.replace(/\D/g, "").slice(-11);
+  return phone.length === 11
+    ? phone.slice(0, 3) + "****" + phone.slice(-4)
+    : "已绑定";
+}
+
+function maskCloudEmail(value) {
+  if (!value) return "未绑定";
+  var parts = value.split("@");
+  if (parts.length !== 2) return "已绑定";
+  var name = parts[0];
+  return (
+    name.slice(0, Math.min(2, name.length)) +
+    "***@" +
+    parts[1]
+  );
+}
+
+function setCloudHeaderAvatar(url) {
+  var image = document.getElementById("cloud-account-avatar");
+  var icon = document.getElementById("cloud-account-default-icon");
+  image.hidden = !url;
+  icon.hidden = !!url;
+  if (url) image.src = url;
+  else image.removeAttribute("src");
+}
+
+async function renderCloudProfile() {
+  var panel = document.getElementById("cloud-login-panel");
+  var profile = document.getElementById("cloud-profile-panel");
+  var isRegistered =
+    cloudbaseConnected && cloudbaseLoginScope !== "anonymous";
+  panel.classList.toggle("is-profile", isRegistered);
+  profile.hidden = !isRegistered;
+  document.getElementById("cloud-logout-btn").hidden = !isRegistered;
+  if (!isRegistered) {
+    setCloudHeaderAvatar("");
+    return;
+  }
+
+  var user = await cloudbaseAuth.getCurrentUser();
+  if (!user) return;
+  var customProfile = await ensureCloudUserProfile(user);
+  var nickname =
+    (customProfile && customProfile.nickname) ||
+    user.name ||
+    user.username ||
+    "汉字星球用户";
+  var avatarImage = document.getElementById("cloud-profile-avatar-img");
+  var avatarIcon = document.getElementById("cloud-profile-avatar-icon");
+
+  document.getElementById("cloud-profile-name").textContent = nickname;
+  document.getElementById("cloud-profile-name-input").value = nickname;
+  document.getElementById("cloud-profile-phone").textContent =
+    maskCloudPhone(user.phoneNumber);
+  document.getElementById("cloud-profile-email").textContent =
+    maskCloudEmail(user.email);
+  document.getElementById("cloud-profile-username").textContent =
+    user.username || "未设置";
+  document.getElementById("cloud-profile-uid").textContent =
+    user.uid || user.sub || "—";
+  document.getElementById("cloud-security-phone").textContent =
+    maskCloudPhone(user.phoneNumber);
+  document.getElementById("cloud-email-bound-value").textContent =
+    maskCloudEmail(user.email);
+  document.getElementById("cloud-email-bound").hidden = !user.email;
+  document.getElementById("cloud-bind-email").hidden = !!user.email;
+
+  var avatarUrl =
+    (customProfile && customProfile.avatarDataUrl) || user.picture || "";
+  if (!avatarUrl && customProfile && customProfile.avatarFileId) {
+    try {
+      var avatarResult = await cloudbaseApp.getTempFileURL({
+        fileList: [customProfile.avatarFileId],
+      });
+      avatarUrl =
+        avatarResult.fileList &&
+        avatarResult.fileList[0] &&
+        avatarResult.fileList[0].tempFileURL
+          ? avatarResult.fileList[0].tempFileURL
+          : avatarUrl;
+    } catch (avatarError) {
+      console.warn("头像地址读取失败", avatarError);
+    }
+  }
+  if (avatarUrl) {
+    avatarImage.src = avatarUrl;
+    avatarImage.hidden = false;
+    avatarIcon.hidden = true;
+  } else {
+    avatarImage.hidden = true;
+    avatarIcon.hidden = false;
+  }
+  setCloudHeaderAvatar(avatarUrl);
+  document.getElementById("cloud-avatar-delete").hidden = !(
+    customProfile &&
+    (customProfile.avatarDataUrl || customProfile.avatarFileId)
+  );
+  toggleCloudProfileNameEdit(false);
+  renderCloudLearningSummary();
+  await syncCloudLearningRecords(false);
+}
+
+async function getCloudMutableUser() {
+  var user = cloudbaseAuth && cloudbaseAuth.currentUser;
+  if (!user && cloudbaseAuth) {
+    var loginState = await cloudbaseAuth.getLoginState();
+    user = loginState && loginState.user;
+  }
+  if (!user) throw new Error("未获取到当前登录用户");
+  if (typeof user.update !== "function") {
+    throw new Error("当前CloudBase SDK未返回可修改的用户实例，请强制刷新页面后重试");
+  }
+  return user;
+}
+
+function toggleCloudProfileNameEdit(show) {
+  var name = document.getElementById("cloud-profile-name");
+  var input = document.getElementById("cloud-profile-name-input");
+  name.hidden = !!show;
+  input.hidden = !show;
+  if (show) {
+    input.value = name.textContent.trim();
+    input.focus();
+    input.select();
+  }
+}
+
+function startCloudProfileNameEdit() {
+  toggleCloudProfileNameEdit(true);
+}
+
+function handleCloudProfileNameKey(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    event.currentTarget.blur();
+  } else if (event.key === "Escape") {
+    event.currentTarget.dataset.cancelEdit = "1";
+    toggleCloudProfileNameEdit(false);
+  }
+}
+
+function finishCloudProfileNameEdit() {
+  var input = document.getElementById("cloud-profile-name-input");
+  if (input.dataset.cancelEdit === "1") {
+    delete input.dataset.cancelEdit;
+    return;
+  }
+  if (
+    input.value.trim() ===
+    document.getElementById("cloud-profile-name").textContent.trim()
+  ) {
+    toggleCloudProfileNameEdit(false);
+    return;
+  }
+  saveCloudProfileName();
+}
+
+function chooseCloudAvatar() {
+  document.getElementById("cloud-avatar-input").click();
+}
+
+function compressCloudAvatar(file) {
+  return new Promise(function (resolve, reject) {
+    var reader = new FileReader();
+    reader.onerror = function () {
+      reject(new Error("图片读取失败"));
+    };
+    reader.onload = function () {
+      var image = new Image();
+      image.onerror = function () {
+        reject(new Error("图片格式无法识别"));
+      };
+      image.onload = function () {
+        var size = Math.min(image.width, image.height);
+        var sx = (image.width - size) / 2;
+        var sy = (image.height - size) / 2;
+        var canvas = document.createElement("canvas");
+        canvas.width = 256;
+        canvas.height = 256;
+        canvas
+          .getContext("2d")
+          .drawImage(image, sx, sy, size, size, 0, 0, 256, 256);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadCloudAvatar(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+    toast("请选择JPG、PNG或WebP图片");
+    input.value = "";
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    toast("头像图片不能超过2MB");
+    input.value = "";
+    return;
+  }
+  try {
+    var user = await cloudbaseAuth.getCurrentUser();
+    if (!user) throw new Error("未获取到当前用户");
+    toast("正在处理头像……");
+    var avatarDataUrl = await compressCloudAvatar(file);
+    var profile = await ensureCloudUserProfile(user);
+    if (!profile || !cloudUserProfileId) throw new Error("用户资料记录未创建");
+    await cloudbaseDb.collection("users").doc(cloudUserProfileId).update({
+      avatarDataUrl: avatarDataUrl,
+      updatedAt: new Date(),
+    });
+    await renderCloudProfile();
+    showCloudOperationMessage("头像更新成功", true);
+    toast("✅ 头像更新成功");
+  } catch (error) {
+    console.error("CloudBase头像上传失败", error);
+    showCloudOperationMessage("头像上传失败：" + formatCloudError(error));
+    toast("头像上传失败，请查看提示");
+  } finally {
+    input.value = "";
+  }
+}
+
+function openDeleteCloudAvatarConfirm() {
+  document.getElementById("ov-delete-avatar").classList.add("open");
+}
+
+function closeDeleteCloudAvatarConfirm() {
+  document.getElementById("ov-delete-avatar").classList.remove("open");
+}
+
+async function deleteCloudAvatar() {
+  closeDeleteCloudAvatarConfirm();
+  try {
+    var user = await cloudbaseAuth.getCurrentUser();
+    if (!user) throw new Error("未获取到当前用户");
+    var profile = await ensureCloudUserProfile(user);
+    if (!profile || !cloudUserProfileId) throw new Error("用户资料记录未创建");
+    await cloudbaseDb.collection("users").doc(cloudUserProfileId).update({
+      avatarDataUrl: "",
+      avatarFileId: "",
+      updatedAt: new Date(),
+    });
+    await renderCloudProfile();
+    showCloudOperationMessage("头像已删除", true);
+    toast("头像已删除");
+  } catch (error) {
+    console.error("CloudBase头像删除失败", error);
+    showCloudOperationMessage("头像删除失败：" + formatCloudError(error));
+    toast("头像删除失败，请查看提示");
+  }
+}
+
+async function saveCloudProfileName() {
+  var name = document.getElementById("cloud-profile-name-input").value.trim();
+  if (!name) {
+    toast("请输入昵称");
+    return;
+  }
+  if (name.length > 20) {
+    toast("昵称最多20个字");
+    return;
+  }
+  var user = null;
+  var profile = null;
+  var oldAuthName = "";
+  var oldProfileName = "";
+  var authUpdated = false;
+  try {
+    user = await getCloudMutableUser();
+    profile = await ensureCloudUserProfile(user);
+    if (!profile || !cloudUserProfileId) throw new Error("用户资料记录未创建");
+    oldAuthName = user.name || "汉字星球用户";
+    oldProfileName = profile.nickname || oldAuthName;
+
+    await user.update({ name: name });
+    authUpdated = true;
+    var refreshed = await user.refresh();
+    var refreshedName = (refreshed && refreshed.name) || user.name;
+    if (refreshedName && refreshedName !== name) {
+      throw new Error("身份认证昵称更新后校验不一致");
+    }
+
+    await cloudbaseDb.collection("users").doc(cloudUserProfileId).update({
+      nickname: name,
+      updatedAt: new Date(),
+    });
+    var savedProfile = await cloudbaseDb
+      .collection("users")
+      .doc(cloudUserProfileId)
+      .get();
+    var savedData =
+      savedProfile.data && savedProfile.data[0]
+        ? savedProfile.data[0]
+        : savedProfile.data;
+    if (!savedData || savedData.nickname !== name) {
+      throw new Error("users.nickname更新后校验不一致");
+    }
+
+    try {
+      await renderCloudProfile();
+    } catch (renderError) {
+      console.warn("昵称保存成功，但资料面板刷新失败", renderError);
+      document.getElementById("cloud-profile-name").textContent = name;
+      document.getElementById("cloud-profile-name-input").value = name;
+    }
+    showCloudOperationMessage(
+      "昵称保存成功",
+      true
+    );
+    toggleCloudProfileNameEdit(false);
+    toast("✅ 昵称已保存");
+  } catch (error) {
+    console.error("CloudBase用户资料更新失败", error);
+    var rollbackMessage = "";
+    if (authUpdated && user) {
+      try {
+        await user.update({ name: oldAuthName });
+        await user.refresh();
+        rollbackMessage = "；身份认证昵称已回滚";
+      } catch (rollbackError) {
+        console.error("CloudBase身份认证昵称回滚失败", rollbackError);
+        rollbackMessage =
+          "；身份认证昵称回滚失败：" + formatCloudError(rollbackError);
+      }
+    }
+    if (profile && cloudUserProfileId && oldProfileName) {
+      try {
+        await cloudbaseDb.collection("users").doc(cloudUserProfileId).update({
+          nickname: oldProfileName,
+          updatedAt: new Date(),
+        });
+      } catch (profileRollbackError) {
+        console.error("users.nickname回滚失败", profileRollbackError);
+      }
+    }
+    showCloudOperationMessage(
+      "昵称保存失败：" + formatCloudError(error) + rollbackMessage
+    );
+    toast("昵称保存失败，请查看具体提示");
+  }
+}
+
+function formatCloudError(error) {
+  if (!error) return "未知错误";
+  var code = error.code || error.error_code || "";
+  var message = error.message || error.error_message || String(error);
+  return (code ? code + "：" : "") + message;
+}
+
+function showCloudOperationMessage(message, success) {
+  var el = document.getElementById("cloud-operation-message");
+  el.textContent = message;
+  el.classList.toggle("success", !!success);
+  el.hidden = false;
+}
+
+async function ensureCloudUserProfile(user) {
+  if (!user || !cloudbaseDb) return null;
+  var uid = user.uid || user.sub;
+  var result = await cloudbaseDb
+    .collection("users")
+    .where({ uid: uid })
+    .limit(1)
+    .get();
+  if (result.data && result.data.length) {
+    cloudUserProfileId = result.data[0]._id;
+    return result.data[0];
+  }
+  var profile = {
+    uid: uid,
+    nickname: user.name || user.username || "汉字星球用户",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  var added = await cloudbaseDb.collection("users").add(profile);
+  cloudUserProfileId = added.id || added._id;
+  profile._id = cloudUserProfileId;
+  return profile;
+}
+
+function switchCloudProfileTab(type) {
+  document.querySelectorAll("[data-cloud-profile-tab]").forEach(function (tab) {
+    tab.classList.toggle("active", tab.dataset.cloudProfileTab === type);
+  });
+  document.querySelectorAll("[data-cloud-profile-view]").forEach(function (view) {
+    view.classList.toggle("active", view.dataset.cloudProfileView === type);
+  });
+  document.getElementById("cloud-operation-message").hidden = true;
+  if (type === "learning") renderCloudLearningSummary();
+  if (type === "favorites") renderCloudFavorites();
+}
+
+function getLocalLearningRecord() {
+  return {
+    todayCount: todayCount,
+    learned: learned.slice(),
+    dictHistory: dictHistory.slice(0, 30),
+    weekData: weekData.slice(),
+    favorites: favorites.slice(),
+  };
+}
+
+function mergeUniqueCloudValues(a, b) {
+  return Array.from(new Set((a || []).concat(b || [])));
+}
+
+function getFavoriteKey(item) {
+  return String(item.type || "") + ":" + String(item.key || "");
+}
+
+function mergeFavoriteRecords(a, b) {
+  var merged = {};
+  (a || []).concat(b || []).forEach(function (item) {
+    if (!item || !item.type || !item.key) return;
+    merged[getFavoriteKey(item)] = item;
+  });
+  return Object.keys(merged).map(function (key) {
+    return merged[key];
+  });
+}
+
+function mergeCloudLearningRecords(local, remote, useLocalFavorites) {
+  remote = remote || {};
+  return {
+    todayCount: Math.max(local.todayCount || 0, remote.todayCount || 0),
+    learned: mergeUniqueCloudValues(local.learned, remote.learned),
+    dictHistory: mergeUniqueCloudValues(
+      local.dictHistory,
+      remote.dictHistory
+    ).slice(0, 30),
+    weekData: local.weekData.map(function (value, index) {
+      return Math.max(value || 0, (remote.weekData || [])[index] || 0);
+    }),
+    favorites: useLocalFavorites
+      ? local.favorites.slice()
+      : mergeFavoriteRecords(local.favorites, remote.favorites),
+  };
+}
+
+function applyCloudLearningRecord(record) {
+  todayCount = record.todayCount;
+  learned = record.learned;
+  dictHistory = record.dictHistory;
+  weekData = record.weekData;
+  favorites = Array.isArray(record.favorites) ? record.favorites : [];
+  localStorage.setItem("bl_today", todayCount);
+  localStorage.setItem("bl_learned", JSON.stringify(learned));
+  localStorage.setItem("bl_dict_hist", JSON.stringify(dictHistory));
+  localStorage.setItem("bl_week", JSON.stringify(weekData));
+  localStorage.setItem("bl_favorites", JSON.stringify(favorites));
+  updateProgress();
+  renderNBCount();
+  updateFavoriteButtons();
+}
+
+function renderCloudLearningSummary() {
+  var record = getLocalLearningRecord();
+  document.getElementById("cloud-stat-learned").textContent =
+    record.learned.length;
+  document.getElementById("cloud-learned-list").innerHTML = record.learned.length
+    ? record.learned
+        .slice()
+        .reverse()
+        .map(function (char) {
+          return "<span>" + char + "</span>";
+        })
+        .join("")
+    : '<span class="cloud-learned-empty">还没有学习记录</span>';
+}
+
+function isFavorite(type, key) {
+  var target = type + ":" + key;
+  return favorites.some(function (item) {
+    return getFavoriteKey(item) === target;
+  });
+}
+
+function toggleFavorite(item) {
+  var target = getFavoriteKey(item);
+  var index = favorites.findIndex(function (favorite) {
+    return getFavoriteKey(favorite) === target;
+  });
+  var added = index === -1;
+  if (added) {
+    favorites.push(item);
+  } else {
+    favorites.splice(index, 1);
+    if (currentFavoriteDetailKey === target) {
+      currentFavoriteDetailKey = "";
+    }
+  }
+  localStorage.setItem("bl_favorites", JSON.stringify(favorites));
+  cloudFavoritesDirty = true;
+  cloudFavoritesVersion++;
+  updateFavoriteButtons();
+  renderCloudFavorites();
+  scheduleCloudLearningSync();
+  toast(added ? "已加入收藏" : "已取消收藏");
+}
+
+function favoriteButtonHtml(item, onclick) {
+  var active = isFavorite(item.type, item.key);
+  return (
+    '<button type="button" class="content-favorite-btn' +
+    (active ? " active" : "") +
+    '" data-favorite-type="' +
+    escapeAttr(item.type) +
+    '" data-favorite-key="' +
+    escapeAttr(item.key) +
+    '" onclick="' +
+    onclick +
+    '"><i class="' +
+    (active ? "fa-solid" : "fa-regular") +
+    ' fa-bookmark" aria-hidden="true"></i><span>' +
+    (active ? "取消收藏" : "收藏") +
+    "</span></button>"
+  );
+}
+
+function updateFavoriteButtons() {
+  document.querySelectorAll(".content-favorite-btn").forEach(
+    function (button) {
+      var active = isFavorite(
+        button.dataset.favoriteType,
+        button.dataset.favoriteKey
+      );
+      button.classList.toggle("active", active);
+      var icon = button.querySelector("i");
+      var label = button.querySelector("span");
+      if (icon) icon.className = (active ? "fa-solid" : "fa-regular") + " fa-bookmark";
+      if (label) label.textContent = active ? "取消收藏" : "收藏";
+    }
+  );
+}
+
+function renderCloudFavorites() {
+  var list = document.getElementById("cloud-favorites-list");
+  if (!list) return;
+  var groups = [
+    { type: "char", label: "汉字" },
+    { type: "idiom", label: "成语" },
+    { type: "poem", label: "古诗" },
+  ];
+  list.innerHTML = groups
+    .map(function (group) {
+      var items = favorites.filter(function (item) {
+        return item.type === group.type;
+      });
+      return (
+        '<section class="cloud-favorite-group"><div class="cloud-favorite-group-title">' +
+        group.label +
+        "<span>" +
+        items.length +
+        "</span></div>" +
+        (items.length
+          ? '<div class="cloud-favorite-items">' +
+            items
+              .slice()
+              .reverse()
+              .map(function (item) {
+                return (
+                  '<div class="cloud-favorite-item" role="button" tabindex="0" data-favorite-type="' +
+                  escapeAttr(item.type) +
+                  '" data-favorite-key="' +
+                  escapeAttr(item.key) +
+                  '" onclick="openFavoriteDetailByButton(this)" onkeydown="handleFavoriteItemKey(event, this)"><div><strong>' +
+                  escapeHtml(item.title || item.key) +
+                  "</strong>" +
+                  (item.meta
+                    ? "<span>" + escapeHtml(item.meta) + "</span>"
+                    : "") +
+                  '</div><button type="button" data-favorite-type="' +
+                  escapeAttr(item.type) +
+                  '" data-favorite-key="' +
+                  escapeAttr(item.key) +
+                  '" onclick="event.stopPropagation(); removeFavoriteByButton(this)" aria-label="取消收藏"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>'
+                );
+              })
+              .join("") +
+            "</div>"
+          : '<div class="cloud-favorite-empty">还没有收藏' +
+            group.label +
+            "</div>") +
+        "</section>"
+      );
+    })
+    .join("") +
+    '<div class="cloud-favorite-detail" id="cloud-favorite-detail" hidden></div>';
+}
+
+function handleFavoriteItemKey(event, item) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  openFavoriteDetailByButton(item);
+}
+
+function closeCloudFavoriteDetail() {
+  currentFavoriteDetailKey = "";
+  var detail = document.getElementById("cloud-favorite-detail");
+  if (detail) {
+    detail.hidden = true;
+    detail.innerHTML = "";
+  }
+}
+
+function cloudFavoriteDetailHeader(title, meta) {
+  return (
+    '<div class="cloud-favorite-detail-head"><div><strong>' +
+    escapeHtml(title) +
+    "</strong>" +
+    (meta ? "<span>" + escapeHtml(meta) + "</span>" : "") +
+    '</div><button type="button" onclick="closeCloudFavoriteDetail()" aria-label="关闭收藏详情"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>'
+  );
+}
+
+async function openFavoriteDetailByButton(button) {
+  var type = button.dataset.favoriteType;
+  var key = button.dataset.favoriteKey;
+  var target = type + ":" + key;
+  var item = favorites.find(function (favorite) {
+    return getFavoriteKey(favorite) === target;
+  });
+  var detail = document.getElementById("cloud-favorite-detail");
+  if (!item || !detail) return;
+
+  currentFavoriteDetailKey = target;
+  detail.hidden = false;
+  detail.innerHTML =
+    cloudFavoriteDetailHeader(item.title || item.key, item.meta || "") +
+    '<div class="cloud-favorite-detail-loading">正在加载收藏内容……</div>';
+  detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  try {
+    if (type === "char") {
+      var charPinyin =
+        window.pinyinPro && typeof window.pinyinPro.pinyin === "function"
+          ? window.pinyinPro.pinyin(key, { toneType: "symbol" })
+          : "";
+      if (currentFavoriteDetailKey !== target) return;
+      detail.innerHTML =
+        cloudFavoriteDetailHeader(key, charPinyin || "汉字") +
+        '<div class="cloud-favorite-char">' +
+        escapeHtml(key) +
+        "</div>" +
+        aiCard("cloud-favorite-char-stream");
+      var output = document.getElementById("cloud-favorite-char-stream");
+      var full = "";
+      await callAIStream(
+        "请按现代汉语词典风格解释“" +
+          key +
+          "”。要求：拼音、释义、组词、例句、近义词或反义词，适合小学生理解。",
+        "你是严谨的现代汉语词典助手，解释要准确、简洁、适合小学生。",
+        function (chunk) {
+          if (currentFavoriteDetailKey !== target) return;
+          full += chunk;
+          setAIText(output, full);
+        }
+      );
+      return;
+    }
+
+    if (type === "idiom") {
+      await loadIdiomStories();
+      var storyIndex = idiomStories.findIndex(function (story) {
+        return story.title === key;
+      });
+      if (storyIndex === -1) throw new Error("没有找到对应成语");
+      var story = await loadStoryDetail(storyIndex);
+      if (currentFavoriteDetailKey !== target) return;
+      detail.innerHTML =
+        cloudFavoriteDetailHeader(story.title, story.pinyin || "成语") +
+        storySection("释义", story.meaning || story.detail || "") +
+        storySection("出处", story.source || "") +
+        storySection(
+          "例句",
+          Array.isArray(story.examples)
+            ? story.examples.join("\n")
+            : story.examples || ""
+        ) +
+        storySection("成语故事", story.detail || "");
+      return;
+    }
+
+    if (type === "poem") {
+      await loadPoetryData();
+      var poem = poetryData.find(function (entry) {
+        return [entry.title || "", entry.author || ""].join("|") === key;
+      });
+      if (!poem) throw new Error("没有找到对应诗词");
+      if (currentFavoriteDetailKey !== target) return;
+      detail.innerHTML =
+        cloudFavoriteDetailHeader(poem.title, poem.author || "诗词") +
+        '<div class="cloud-favorite-poem-text">' +
+        escapeHtml((poem.content || []).join("\n")) +
+        "</div>" +
+        storySection("诗词解释", poem.paraphrase || "") +
+        storySection("注解", poem.annotation || "");
+      return;
+    }
+
+    throw new Error("暂不支持此类收藏");
+  } catch (error) {
+    if (currentFavoriteDetailKey !== target) return;
+    detail.innerHTML =
+      cloudFavoriteDetailHeader(item.title || item.key, item.meta || "") +
+      '<div class="cloud-favorite-detail-error">收藏内容加载失败，请稍后重试。</div>';
+  }
+}
+
+function removeFavoriteByButton(button) {
+  var item = favorites.find(function (favorite) {
+    return (
+      favorite.type === button.dataset.favoriteType &&
+      favorite.key === button.dataset.favoriteKey
+    );
+  });
+  if (item) toggleFavorite(item);
+}
+
+function toggleCharFavorite(char) {
+  toggleFavorite({
+    type: "char",
+    key: char,
+    title: char,
+    meta: "汉字",
+  });
+}
+
+function toggleStoryFavorite(index) {
+  var story = idiomStories && idiomStories[index];
+  if (!story) return;
+  toggleFavorite({
+    type: "idiom",
+    key: story.title,
+    title: story.title,
+    meta: story.pinyin || "成语",
+  });
+}
+
+function togglePoetryFavorite(poemId) {
+  var poem = poetryData.find(function (item) {
+    return String(item.id) === String(poemId);
+  });
+  if (!poem) return;
+  toggleFavorite({
+    type: "poem",
+    key: [poem.title || "", poem.author || ""].join("|"),
+    title: poem.title,
+    meta: poem.author || "古诗",
+  });
+}
+
+function togglePasswordVisibility(inputId, button) {
+  var input = document.getElementById(inputId);
+  if (!input) return;
+  var visible = input.type === "text";
+  input.type = visible ? "password" : "text";
+  button.title = visible ? "显示密码" : "隐藏密码";
+  button.setAttribute("aria-label", button.title);
+  var icon = button.querySelector("i");
+  if (icon) icon.className = "fa-solid " + (visible ? "fa-eye" : "fa-eye-slash");
+}
+
+async function syncCloudLearningRecords(showResult) {
+  if (
+    cloudLearningSyncing ||
+    !cloudbaseConnected ||
+    cloudbaseLoginScope === "anonymous"
+  )
+    return;
+  cloudLearningSyncing = true;
+  var favoritesVersion = cloudFavoritesVersion;
+  var syncSucceeded = false;
+  var status = document.getElementById("cloud-sync-status");
+  status.textContent = "正在同步云端记录……";
+  try {
+    var user = await cloudbaseAuth.getCurrentUser();
+    if (!user) throw new Error("未获取到登录用户");
+    var uid = user.uid || user.sub;
+    var result = await cloudbaseDb
+      .collection("learning_records")
+      .where({ uid: uid })
+      .limit(1)
+      .get();
+    var remote =
+      result.data && result.data.length ? result.data[0] : null;
+    var merged = mergeCloudLearningRecords(
+      getLocalLearningRecord(),
+      remote,
+      cloudFavoritesDirty
+    );
+    applyCloudLearningRecord(merged);
+    var cloudData = Object.assign({}, merged, {
+      uid: uid,
+      updatedAt: new Date(),
+    });
+    if (remote) {
+      cloudLearningRecordId = remote._id;
+      var removeCloudField = cloudbaseDb.command.remove();
+      await cloudbaseDb
+        .collection("learning_records")
+        .doc(cloudLearningRecordId)
+        .update(
+          Object.assign({}, cloudData, {
+            stars: removeCloudField,
+            streak: removeCloudField,
+            badges: removeCloudField,
+            dailyDone: removeCloudField,
+            quizCorrect: removeCloudField,
+            storyCount: removeCloudField,
+          })
+        );
+    } else {
+      cloudData.createdAt = new Date();
+      var added = await cloudbaseDb
+        .collection("learning_records")
+        .add(cloudData);
+      cloudLearningRecordId = added.id || added._id;
+    }
+    syncSucceeded = true;
+    if (favoritesVersion === cloudFavoritesVersion) {
+      cloudFavoritesDirty = false;
+    }
+    renderCloudLearningSummary();
+    status.textContent =
+      "已同步 · " + new Date().toLocaleTimeString("zh-CN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    if (showResult) {
+      showCloudOperationMessage("学习记录已同步到云端", true);
+      toast("✅ 学习记录已同步");
+    }
+  } catch (error) {
+    console.error("CloudBase学习记录同步失败", error);
+    status.textContent = "同步失败";
+    showCloudOperationMessage("学习记录同步失败：" + formatCloudError(error));
+    if (showResult) toast("学习记录同步失败，请查看提示");
+  } finally {
+    cloudLearningSyncing = false;
+    if (
+      syncSucceeded &&
+      cloudFavoritesDirty &&
+      favoritesVersion !== cloudFavoritesVersion
+    ) {
+      scheduleCloudLearningSync();
+    }
+  }
+}
+
+function scheduleCloudLearningSync() {
+  if (
+    !cloudbaseConnected ||
+    cloudbaseLoginScope === "anonymous" ||
+    cloudLearningSyncing
+  )
+    return;
+  clearTimeout(cloudLearningSyncTimer);
+  cloudLearningSyncTimer = setTimeout(function () {
+    syncCloudLearningRecords(false);
+  }, 1500);
+}
+
+function startCloudButtonCountdown(button, originalText) {
+  var seconds = 60;
+  button.disabled = true;
+  button.textContent = seconds + "秒";
+  var timer = setInterval(function () {
+    seconds--;
+    button.textContent = seconds > 0 ? seconds + "秒" : originalText;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      button.disabled = false;
+    }
+  }, 1000);
+}
+
+async function sendCloudBindEmailCode(button) {
+  var email = document.getElementById("cloud-bind-email-address").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showCloudOperationMessage("请输入正确的邮箱地址");
+    return;
+  }
+  try {
+    var text = button.textContent;
+    button.disabled = true;
+    button.textContent = "发送中";
+    cloudBindVerification.email = await cloudbaseAuth.getVerification({
+      email: email,
+    });
+    cloudBindVerification.emailAddress = email;
+    startCloudButtonCountdown(button, text);
+    showCloudOperationMessage("邮箱验证码已发送", true);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "发送邮箱验证码";
+    showCloudOperationMessage("邮箱验证码发送失败：" + formatCloudError(error));
+  }
+}
+
+async function bindCloudEmail() {
+  var password = document.getElementById("cloud-bind-password").value;
+  var emailCode = document.getElementById("cloud-bind-email-code").value.trim();
+  if (!password) {
+    showCloudOperationMessage("请输入当前账号密码");
+    return;
+  }
+  if (!cloudBindVerification.email) {
+    showCloudOperationMessage("请先获取邮箱验证码");
+    return;
+  }
+  if (!/^\d{6}$/.test(emailCode)) {
+    showCloudOperationMessage("请输入6位邮箱验证码");
+    return;
+  }
+  try {
+    var sudo = await cloudbaseAuth.sudo({
+      password: password,
+    });
+    var emailVerified = await cloudbaseAuth.verify({
+      verification_id: cloudBindVerification.email.verification_id,
+      verification_code: emailCode,
+    });
+    await cloudbaseAuth.bindEmail({
+      email: cloudBindVerification.emailAddress,
+      sudo_token: sudo.sudo_token,
+      verification_token: emailVerified.verification_token,
+    });
+    var user = cloudbaseAuth.currentUser;
+    if (user && typeof user.refresh === "function") await user.refresh();
+    cloudBindVerification = { phone: null, email: null, emailAddress: "" };
+    document.getElementById("cloud-bind-password").value = "";
+    await renderCloudProfile();
+    showCloudOperationMessage("邮箱绑定成功", true);
+    toast("✅ 邮箱绑定成功");
+  } catch (error) {
+    console.error("CloudBase邮箱绑定失败", error);
+    showCloudOperationMessage("邮箱绑定失败：" + formatCloudError(error));
+    toast("邮箱绑定失败，请查看具体提示");
+  }
+}
+
+function switchCloudLogin(type) {
+  document.querySelectorAll(".cloud-login-tab").forEach(function (button) {
+    button.classList.toggle("active", button.dataset.cloudLogin === type);
+  });
+  document.querySelectorAll(".cloud-login-form").forEach(function (form) {
+    form.classList.toggle("active", form.dataset.cloudLoginForm === type);
+  });
+  toggleCloudPasswordReset(false);
+}
+
+function openCloudRegistration() {
+  document.getElementById("ov-cloud-account").classList.remove("open");
+  document.getElementById("ov-cloud-register").classList.add("open");
+}
+
+function closeCloudRegistration() {
+  document.getElementById("ov-cloud-register").classList.remove("open");
+  document.getElementById("ov-cloud-account").classList.add("open");
+}
+
+function getCloudRegistrationAccount() {
+  var value = document.getElementById("cloud-register-account").value.trim();
+  if (/^1\d{10}$/.test(value)) {
+    return { type: "phone", value: "+86 " + value, display: value };
+  }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return { type: "email", value: value, display: value };
+  }
+  return null;
+}
+
+async function sendCloudRegistrationCode(button) {
+  var account = getCloudRegistrationAccount();
+  if (!account) {
+    toast("请输入正确的手机号或邮箱");
+    return;
+  }
+  try {
+    button.disabled = true;
+    button.textContent = "发送中";
+    var params =
+      account.type === "phone"
+        ? { phone_number: account.value }
+        : { email: account.value };
+    var verification = await cloudbaseAuth.getVerification(params);
+    if (verification.is_user) {
+      cloudVerification[account.type] = verification;
+      cloudVerification[account.type === "phone" ? "email" : "phone"] = null;
+      document.getElementById("cloud-login-code-account").value =
+        account.display;
+      button.disabled = false;
+      button.textContent = "获取验证码";
+      closeCloudRegistration();
+      switchCloudLogin("code");
+      toast("该账号已注册，验证码已发送，请直接登录");
+      return;
+    }
+    cloudRegistrationVerification = verification;
+    cloudRegistrationAccount = account;
+    var seconds = 60;
+    button.textContent = seconds + "秒";
+    var timer = setInterval(function () {
+      seconds--;
+      button.textContent = seconds > 0 ? seconds + "秒" : "获取验证码";
+      if (seconds <= 0) {
+        clearInterval(timer);
+        button.disabled = false;
+      }
+    }, 1000);
+    toast(
+      account.type === "phone"
+        ? "✅ 短信验证码已发送"
+        : "✅ 邮箱验证码已发送"
+    );
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "获取验证码";
+    console.error("CloudBase注册验证码发送失败", error);
+    toast(formatCloudError(error));
+  }
+}
+
+async function registerCloudAccount() {
+  var account = getCloudRegistrationAccount();
+  var code = document.getElementById("cloud-register-code").value.trim();
+  var password = document.getElementById("cloud-register-password").value;
+  var nickname =
+    document.getElementById("cloud-register-nickname").value.trim() ||
+    "汉字星球用户";
+  if (!account || !/^\d{6}$/.test(code)) {
+    toast("请填写手机号或邮箱以及6位验证码");
+    return;
+  }
+  if (!password || !validateCloudPassword(password)) {
+    toast("密码需为8～32位，并同时包含字母和数字");
+    return;
+  }
+  if (
+    !cloudRegistrationVerification ||
+    !cloudRegistrationAccount ||
+    cloudRegistrationAccount.value !== account.value
+  ) {
+    toast("账号已改变，请重新获取验证码");
+    return;
+  }
+  try {
+    var verified = await cloudbaseAuth.verify({
+      verification_id: cloudRegistrationVerification.verification_id,
+      verification_code: code,
+    });
+    var signupParams = {
+      verification_code: code,
+      verification_token:
+        verified.verification_token || verified.verificationToken,
+      password: password,
+      name: nickname,
+    };
+    signupParams[account.type === "phone" ? "phone_number" : "email"] =
+      account.value;
+    await cloudbaseAuth.signUp(signupParams);
+    await cloudbaseAuth.signOut();
+    await cloudbaseAuth.signInAnonymously();
+    cloudbaseLoginScope = "anonymous";
+    cloudRegistrationVerification = null;
+    cloudRegistrationAccount = null;
+    document.getElementById("cloud-login-username").value = account.display;
+    document.getElementById("cloud-login-password").value = "";
+    setCloudBaseStatus(
+      "connected",
+      "注册成功",
+      "请使用刚刚注册的账号和密码登录。"
+    );
+    closeCloudRegistration();
+    switchCloudLogin("password");
+    toast("✅ 注册成功，请登录");
+  } catch (error) {
+    console.error("CloudBase账号注册失败", error);
+    toast("注册失败：" + formatCloudError(error));
+  }
+}
+
+function toggleCloudPasswordReset(show) {
+  var panel = document.getElementById("cloud-password-reset");
+  if (panel) panel.hidden = !show;
+}
+
+function getCloudResetAccount() {
+  var value = document.getElementById("cloud-reset-account").value.trim();
+  if (/^1\d{10}$/.test(value)) {
+    return { type: "phone", value: "+86 " + value };
+  }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return { type: "email", value: value };
+  }
+  return null;
+}
+
+async function sendCloudResetCode(button) {
+  var account = getCloudResetAccount();
+  if (!account) {
+    toast("请输入正确的手机号或邮箱");
+    return;
+  }
+  try {
+    button.disabled = true;
+    button.textContent = "发送中";
+    var params =
+      account.type === "phone"
+        ? { phone_number: account.value }
+        : { email: account.value };
+    cloudPasswordResetVerification =
+      await cloudbaseAuth.getVerification(params);
+    if (cloudPasswordResetVerification.is_user === false) {
+      cloudPasswordResetVerification = null;
+      throw new Error("该账号尚未注册");
+    }
+    var seconds = 60;
+    button.textContent = seconds + "秒";
+    var timer = setInterval(function () {
+      seconds--;
+      button.textContent = seconds > 0 ? seconds + "秒" : "获取验证码";
+      if (seconds <= 0) {
+        clearInterval(timer);
+        button.disabled = false;
+      }
+    }, 1000);
+    toast("✅ 验证码已发送");
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "获取验证码";
+    console.error("CloudBase重置密码验证码发送失败", error);
+    toast(formatCloudError(error));
+  }
+}
+
+async function resetCloudPassword() {
+  var account = getCloudResetAccount();
+  var code = document.getElementById("cloud-reset-code").value.trim();
+  var password = document.getElementById("cloud-reset-password").value;
+  if (!account || !/^\d{6}$/.test(code)) {
+    toast("请填写手机号或邮箱以及6位验证码");
+    return;
+  }
+  if (!password || !validateCloudPassword(password)) {
+    toast("新密码需为8～32位，并同时包含字母和数字");
+    return;
+  }
+  if (!cloudPasswordResetVerification) {
+    toast("请先获取验证码");
+    return;
+  }
+  try {
+    var verified = await cloudbaseAuth.verify({
+      verification_id: cloudPasswordResetVerification.verification_id,
+      verification_code: code,
+    });
+    var params = {
+      new_password: password,
+      verification_token:
+        verified.verification_token || verified.verificationToken,
+    };
+    params[account.type === "phone" ? "phone_number" : "email"] = account.value;
+    await cloudbaseAuth.resetPassword(params);
+    cloudPasswordResetVerification = null;
+    toggleCloudPasswordReset(false);
+    document.getElementById("cloud-login-username").value =
+      account.type === "phone" ? account.value.replace("+86 ", "") : account.value;
+    toast("✅ 密码已重设，请使用新密码登录");
+  } catch (error) {
+    console.error("CloudBase密码重设失败", error);
+    toast("密码重设失败：" + formatCloudError(error));
+  }
+}
+
+function validateCloudPassword(password) {
+  return (
+    !password ||
+    (password.length >= 8 &&
+      password.length <= 32 &&
+      /[A-Za-z]/.test(password) &&
+      /\d/.test(password))
+  );
+}
+
+async function loginCloudPassword() {
+  var username = document.getElementById("cloud-login-username").value.trim();
+  var password = document.getElementById("cloud-login-password").value;
+  if (!username || !password) {
+    toast("请填写账号和密码");
+    return;
+  }
+  if (/^1\d{10}$/.test(username)) {
+    username = "+86 " + username;
+  }
+  try {
+    await cloudbaseAuth.signIn({ username: username, password: password });
+    cloudbaseLoginScope = await cloudbaseAuth.loginScope();
+    setCloudBaseStatus("connected", "账号登录成功", "当前正式账号已连接。");
+    await renderCloudProfile();
+    toast("✅ 登录成功");
+  } catch (error) {
+    console.error("CloudBase账号登录失败", error);
+    toast("登录失败：" + formatCloudError(error));
+  }
+}
+
+function getCloudCodeAccount() {
+  var value = document.getElementById("cloud-login-code-account").value.trim();
+  if (/^1\d{10}$/.test(value)) {
+    return { type: "phone", value: "+86 " + value };
+  }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    return { type: "email", value: value };
+  }
+  return null;
+}
+
+async function sendCloudCode(button) {
+  var account = getCloudCodeAccount();
+  if (!account) {
+    toast("请输入正确的手机号或邮箱");
+    return;
+  }
+  try {
+    button.disabled = true;
+    button.textContent = "发送中";
+    var params =
+      account.type === "phone"
+        ? { phone_number: account.value }
+        : { email: account.value };
+    cloudVerification[account.type] =
+      await cloudbaseAuth.getVerification(params);
+    if (cloudVerification[account.type].is_user === false) {
+      cloudRegistrationVerification = cloudVerification[account.type];
+      cloudRegistrationAccount = {
+        type: account.type,
+        value: account.value,
+        display: document
+          .getElementById("cloud-login-code-account")
+          .value.trim(),
+      };
+      cloudVerification[account.type] = null;
+      document.getElementById("cloud-register-account").value =
+        cloudRegistrationAccount.display;
+      button.disabled = false;
+      button.textContent = "获取验证码";
+      openCloudRegistration();
+      toast("该账号还未注册，验证码已发送，请完成注册");
+      return;
+    }
+    cloudVerification[account.type === "phone" ? "email" : "phone"] = null;
+    var seconds = 60;
+    button.textContent = seconds + "秒";
+    var timer = setInterval(function () {
+      seconds--;
+      button.textContent = seconds > 0 ? seconds + "秒" : "获取验证码";
+      if (seconds <= 0) {
+        clearInterval(timer);
+        button.disabled = false;
+      }
+    }, 1000);
+    toast("✅ 验证码已发送");
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "获取验证码";
+    console.error("CloudBase验证码发送失败", error);
+    toast(formatCloudError(error));
+  }
+}
+
+async function loginCloudCode() {
+  var account = getCloudCodeAccount();
+  var code = document.getElementById("cloud-login-code").value.trim();
+  var verification = account && cloudVerification[account.type];
+  if (!account || !/^\d{6}$/.test(code)) {
+    toast("请填写账号和6位验证码");
+    return;
+  }
+  if (!verification) {
+    toast("请先获取验证码");
+    return;
+  }
+  try {
+    if (account.type === "phone") {
+      await cloudbaseAuth.signInWithSms({
+        verificationInfo: verification,
+        verificationCode: code,
+        phoneNum: account.value,
+      });
+    } else {
+      await cloudbaseAuth.signInWithEmail({
+        verificationInfo: verification,
+        verificationCode: code,
+        email: account.value,
+      });
+    }
+    cloudbaseLoginScope = await cloudbaseAuth.loginScope();
+    setCloudBaseStatus("connected", "账号登录成功", "当前正式账号已连接。");
+    await renderCloudProfile();
+    toast("✅ 登录成功");
+  } catch (error) {
+    console.error("CloudBase验证码登录失败", error);
+    toast("验证码错误、过期或账号配置不正确");
+  }
+}
+
+async function logoutCloudAccount() {
+  try {
+    await cloudbaseAuth.signOut();
+    cloudbaseConnected = false;
+    cloudbaseLoginScope = "";
+    cloudVerification.phone = null;
+    cloudVerification.email = null;
+    cloudBindVerification = { phone: null, email: null, emailAddress: "" };
+    cloudUserProfileId = "";
+    cloudLearningRecordId = "";
+    await connectCloudBase(false);
+    toast("已退出，当前使用游客模式");
+  } catch (error) {
+    console.error("CloudBase退出失败", error);
+    toast("退出失败，请稍后重试");
+  }
+}
+
 function toast(msg) {
   var t = document.getElementById("toast");
   t.textContent = msg;
@@ -578,23 +1790,6 @@ function toast(msg) {
   setTimeout(function () {
     t.classList.remove("show");
   }, 2200);
-}
-
-function addStar(n) {
-  stars += n;
-  localStorage.setItem("bl_stars", stars);
-  document.getElementById("star-num").textContent = stars;
-  burst(n);
-}
-
-function burst(n) {
-  var e = document.createElement("div");
-  e.className = "star-burst";
-  e.textContent = n >= 3 ? "🌟🌟🌟" : n >= 2 ? "⭐⭐" : "⭐";
-  document.body.appendChild(e);
-  setTimeout(function () {
-    e.remove();
-  }, 900);
 }
 
 function markLearned(char) {
@@ -606,8 +1801,9 @@ function markLearned(char) {
     localStorage.setItem("bl_today", todayCount);
     localStorage.setItem("bl_week", JSON.stringify(weekData));
     updateProgress();
-    checkBadges();
     renderNBCount();
+    renderCloudLearningSummary();
+    scheduleCloudLearningSync();
   }
 }
 
@@ -620,99 +1816,6 @@ function updateProgress() {
 function renderNBCount() {
   var el = document.getElementById("nb-count");
   if (el) el.textContent = learned.length;
-}
-
-function checkBadges() {
-  var ul = JSON.parse(localStorage.getItem("bl_badges") || "[]");
-  BADGES.forEach(function (b) {
-    if (ul.includes(b.id)) return;
-    var ok = false;
-    if (b.type === "streak") ok = streak >= b.req;
-    else if (b.type === "quiz")
-      ok = (+localStorage.getItem("bl_quiz_correct") || 0) >= b.req;
-    else if (b.type === "story")
-      ok = (+localStorage.getItem("bl_story_count") || 0) >= b.req;
-    else ok = learned.length >= b.req;
-    if (ok) {
-      ul.push(b.id);
-      toast("🎉 解锁成就：" + b.label + "！");
-    }
-  });
-  localStorage.setItem("bl_badges", JSON.stringify(ul));
-  renderBadges();
-}
-
-function renderBadges() {
-  var ul = JSON.parse(localStorage.getItem("bl_badges") || "[]");
-  document.getElementById("achieve-row").innerHTML = BADGES.map(function (b) {
-    return (
-      '<div class="badge-item" title="' +
-      b.desc +
-      '"><div class="badge-icon ' +
-      (ul.includes(b.id) ? "unlocked" : "locked") +
-      '">' +
-      '<img src="' +
-      b.iconImg +
-      '" alt="" />' +
-      "</div></div>"
-    );
-  }).join("");
-}
-
-function renderDailyQuick() {
-  var done = JSON.parse(localStorage.getItem("bl_daily_done") || "[]");
-  var total = DAILY_TASKS.length,
-    finished = done.length;
-  var earned = DAILY_TASKS.reduce(function (a, t) {
-    return done.includes(t.id) ? a + t.stars : a;
-  }, 0);
-  var fns = {
-    scene: "openScene()",
-    quiz3: "openQuiz()",
-    dict1: "openDict()",
-    write1: "openWrite()",
-  };
-  document.getElementById("daily-quick").innerHTML =
-    '<div class="daily-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-size:13px;font-weight:700;color:#2D3748;">完成 ' +
-    finished +
-    "/" +
-    total +
-    ' 项任务</span><span style="font-size:12px;color:#A855F7;font-weight:700;">+' +
-    earned +
-    ' ⭐ 已获得</span></div><div style="display:flex;gap:6px;">' +
-    DAILY_TASKS.map(function (t) {
-      var d = done.includes(t.id);
-      return (
-        '<div style="flex:1;text-align:center;cursor:pointer;" onclick="' +
-        (!d ? fns[t.id] : "") +
-        '"><div style="' +
-        (d ? "filter:grayscale(.6);opacity:.6" : "") +
-        '"><img src="' +
-        t.iconImg +
-        '" alt="" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto;"></div><div style="font-size:10px;color:' +
-        (d ? "#94A3B8" : "#4A5568") +
-        ';margin-top:2px;font-weight:700;">' +
-        (d ? "✓完成" : "去做") +
-        "</div></div>"
-      );
-    }).join("") +
-    "</div></div>";
-}
-
-function completeTask(id) {
-  var done = JSON.parse(localStorage.getItem("bl_daily_done") || "[]");
-  if (!done.includes(id)) {
-    done.push(id);
-    localStorage.setItem("bl_daily_done", JSON.stringify(done));
-    var t = DAILY_TASKS.find(function (t) {
-      return t.id === id;
-    });
-    if (t) {
-      addStar(t.stars);
-      toast("✅ 任务完成：" + t.name + " +" + t.stars + "⭐");
-    }
-    renderDailyQuick();
-  }
 }
 
 var currentScene = 0;
@@ -956,8 +2059,6 @@ async function learnSceneChar(char, label, idx) {
     }
   );
   markLearned(char);
-  addStar(1);
-  completeTask("scene");
 }
 function getQuizDataPool() {
   if (currentQuizGrade === "全部") return QUIZ_DATA;
@@ -1040,12 +2141,7 @@ async function answerQuiz(el, choice) {
   markLearned(q.char);
   if (ok) {
     quizStreak++;
-    addStar(2);
     quizRound++;
-    var correct = +localStorage.getItem("bl_quiz_correct") || 0;
-    localStorage.setItem("bl_quiz_correct", correct + 1);
-    if (correct + 1 >= 3) completeTask("quiz3");
-    checkBadges();
   } else {
     quizStreak = 0;
   }
@@ -1076,12 +2172,31 @@ async function answerQuiz(el, choice) {
       setAIText(textEl, full);
     }
   );
-  setTimeout(function () {
-    var data = getQuizDataPool();
-    quizIdx = (quizIdx + 1) % data.length;
-    renderQuiz();
-  }, 5000);
+  aiEl.insertAdjacentHTML(
+    "beforeend",
+    '<div class="quiz-question-nav">' +
+      '<button type="button" class="quiz-prev-btn" onclick="changeQuizQuestion(-1)">' +
+      '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i> 上一题</button>' +
+      '<button type="button" class="quiz-next-btn" onclick="changeQuizQuestion(1)">' +
+      '下一题 <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>' +
+      "</div>"
+  );
 }
+
+function changeQuizQuestion(step) {
+  var data = getQuizDataPool();
+  quizIdx = (quizIdx + step + data.length) % data.length;
+  renderQuiz();
+}
+
+document.addEventListener("keydown", function (event) {
+  if (event.key !== "Escape") return;
+  if (document.getElementById("win-modal").classList.contains("open")) {
+    closeWin();
+    return;
+  }
+  if (document.querySelector(".overlay.open")) closeAll();
+});
 
 function openDict() {
   renderDictHistory();
@@ -1114,6 +2229,7 @@ async function doDict() {
     dictHistory.push(char);
     localStorage.setItem("bl_dict_hist", JSON.stringify(dictHistory));
     renderDictHistory();
+    scheduleCloudLearningSync();
   }
   var resultEl = document.getElementById("dict-result");
   resultEl.innerHTML = aiCard("dict-stream");
@@ -1133,8 +2249,6 @@ async function doDict() {
     }
   );
   markLearned(char);
-  addStar(1);
-  completeTask("dict1");
 }
 
 async function quickLookup(char) {
@@ -1295,7 +2409,7 @@ async function submitWrite() {
       body: JSON.stringify({
         image_base64: b64,
         mime_type: "image/png",
-        model: vlModel(),
+        model: VISION_MODEL,
         prompt:
           "小朋友在米字格中练写汉字「" +
           writeTarget +
@@ -1322,8 +2436,6 @@ async function submitWrite() {
         "无法评分"
     );
     markLearned(writeTarget);
-    addStar(2);
-    completeTask("write1");
   } catch (e) {
     document.getElementById("write-stream").textContent = "❌ 网络错误，请重试";
   }
@@ -1619,7 +2731,17 @@ async function openStoryDetail(i) {
     escapeHtml(s.title) +
     '</div><div class="story-meta">' +
     escapeHtml(s.pinyin || "") +
-    '</div><div class="story-chars" style="margin-bottom:12px;">' +
+    "</div>" +
+    favoriteButtonHtml(
+      {
+        type: "idiom",
+        key: s.title,
+        title: s.title,
+        meta: s.pinyin || "成语",
+      },
+      "toggleStoryFavorite(" + i + ")"
+    ) +
+    '<div class="story-chars" style="margin-bottom:12px;">' +
     chars
       .map(function (c) {
         return '<div class="story-char-badge">' + escapeHtml(c) + "</div>";
@@ -1652,9 +2774,6 @@ async function openStoryDetail(i) {
   chars.forEach(function (c) {
     markLearned(c);
   });
-  var sc = +localStorage.getItem("bl_story_count") || 0;
-  localStorage.setItem("bl_story_count", sc + 1);
-  checkBadges();
 }
 
 async function analyzeStory(i) {
@@ -1680,8 +2799,7 @@ async function analyzeStory(i) {
       setAIText(document.getElementById("story-stream"), full);
     }
   );
-  addStar(3);
-  toast("🎉 学完成语 +3⭐");
+  toast("🎉 成语学习完成");
 }
 
 function openPhonics() {
@@ -1797,6 +2915,9 @@ async function showPhonics(py, words, el) {
 }
 
 function openNoteBook() {
+  currentNoteBookChar = "";
+  document.getElementById("nb-input").value = "";
+  document.getElementById("nb-result").innerHTML = "";
   renderNoteBook("");
   openModal("ov-notebook");
 }
@@ -1823,7 +2944,9 @@ function renderNoteBook(filter) {
     .reverse()
     .map(function (c) {
       return (
-        '<div class="nb-char" onclick="quickLookup(\'' +
+        '<div class="nb-char' +
+        (c === currentNoteBookChar ? " active" : "") +
+        '" onclick="lookupNoteBookChar(\'' +
         c +
         '\')"><span class="c">' +
         c +
@@ -1831,6 +2954,40 @@ function renderNoteBook(filter) {
       );
     })
     .join("");
+}
+
+async function lookupNoteBookChar(char) {
+  currentNoteBookChar = char;
+  document.querySelectorAll("#nb-grid .nb-char").forEach(function (item) {
+    item.classList.toggle(
+      "active",
+      item.querySelector(".c").textContent === char
+    );
+  });
+  var result = document.getElementById("nb-result");
+  result.innerHTML =
+    '<div class="content-favorite-bar">' +
+    favoriteButtonHtml(
+      { type: "char", key: char, title: char, meta: "汉字" },
+      "toggleCharFavorite('" + char + "')"
+    ) +
+    "</div>" +
+    aiCard("nb-stream");
+  var output = document.getElementById("nb-stream");
+  var full = "";
+  result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  await callAIStream(
+    "请严格按下面固定版式介绍汉字「" +
+      char +
+      "」：\n认识「" +
+      char +
+      "」字,小朋友\n① 字形：像什么，用一句话说明\n② 拼音：拼音和声调\n③ 例句：一个生动例句\n④ 记忆：一个记忆小技巧\n⑤ 笔画部首：总笔画、偏旁部首、部首含义\n⑥ 组词：两个生活常用组词",
+    "你是专为1-6年级小朋友服务的汉字老师郑老师，温暖生动，控制在250字以内。",
+    function (chunk) {
+      full += chunk;
+      setAIText(output, full);
+    }
+  );
 }
 
 function openRadicals() {
@@ -1928,15 +3085,7 @@ async function analyzeRadical(radical) {
 }
 
 function init() {
-  if (apiKey) {
-    document.getElementById("setting-api-key").value = apiKey;
-    updateSettingStatus();
-  }
-  document.getElementById("star-num").textContent = stars;
-  document.getElementById("streak-num").textContent = streak;
   updateProgress();
-  renderBadges();
-  renderDailyQuick();
   renderNBCount();
   document.querySelectorAll(".overlay").forEach(function (o) {
     o.addEventListener("click", function (e) {
@@ -1953,11 +3102,7 @@ function init() {
   initCoursewareSwipe();
   window.addEventListener("resize", handleCoursewareResize);
   document.getElementById("nb-input").addEventListener("input", filterNB);
-  document
-    .getElementById("setting-overlay")
-    .addEventListener("click", function (e) {
-      if (e.target === this) closeSetting();
-    });
+  connectCloudBase(false);
 }
 init();
 
@@ -1989,66 +3134,11 @@ function initDailyChar() {
     "</div>";
 }
 
-var isNight = localStorage.getItem("bl_night") === "1";
-
-function applyTheme() {
-  document.body.classList.toggle("night", isNight);
-}
-
-function toggleTheme() {
-  isNight = !isNight;
-  localStorage.setItem("bl_night", isNight ? "1" : "0");
-  applyTheme();
-}
-
-var audioCtx = null,
-  musicPlaying = false,
-  melodyIdx = 0,
-  melodyTimer = null,
-  bgGain = null;
-var MELODY = [
-  261, 294, 330, 349, 392, 440, 392, 349, 330, 294, 261, 0, 294, 330, 392, 440,
-  494, 440, 392, 330,
-];
+var audioCtx = null;
 
 function initAudioCtx() {
   if (!audioCtx)
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
-
-function playMelodyNote() {
-  if (!musicPlaying || !audioCtx) return;
-  var freq = MELODY[melodyIdx % MELODY.length];
-  melodyIdx++;
-  if (freq > 0) {
-    var osc = audioCtx.createOscillator(),
-      g = audioCtx.createGain();
-    osc.connect(g);
-    g.connect(bgGain);
-    osc.type = "sine";
-    osc.frequency.value = freq;
-    g.gain.setValueAtTime(0.07, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.45);
-  }
-  melodyTimer = setTimeout(playMelodyNote, 500);
-}
-
-function toggleMusic() {
-  initAudioCtx();
-  if (audioCtx.state === "suspended") audioCtx.resume();
-  musicPlaying = !musicPlaying;
-  document.getElementById("music-btn").textContent = musicPlaying ? "🔇" : "🎵";
-  if (musicPlaying) {
-    bgGain = audioCtx.createGain();
-    bgGain.gain.value = 1;
-    bgGain.connect(audioCtx.destination);
-    melodyIdx = 0;
-    playMelodyNote();
-  } else {
-    clearTimeout(melodyTimer);
-  }
 }
 
 function playSfx(type) {
@@ -2262,7 +3352,6 @@ async function checkSentence() {
       setAIText(document.getElementById("sentence-stream"), full);
     }
   );
-  addStar(2);
   playSfx("star");
 }
 
@@ -2274,76 +3363,6 @@ function showComposedSentence(text) {
   finalText.textContent = text;
   ans.appendChild(finalText);
   document.getElementById("sentence-pool").innerHTML = "";
-}
-
-var uploadedImgB64 = "";
-
-function openImgRead() {
-  document.getElementById("upload-preview").style.display = "none";
-  document.getElementById("imgread-submit-wrap").style.display = "none";
-  document.getElementById("imgread-result").innerHTML = "";
-  document.getElementById("img-file-input").value = "";
-  uploadedImgB64 = "";
-  openModal("ov-imgread");
-}
-
-function handleImgUpload(input) {
-  var file = input.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function (e) {
-    uploadedImgB64 = e.target.result.split(",")[1];
-    var prev = document.getElementById("upload-preview");
-    prev.src = e.target.result;
-    prev.style.display = "block";
-    document.getElementById("imgread-submit-wrap").style.display = "block";
-    document.getElementById("imgread-result").innerHTML = "";
-  };
-  reader.readAsDataURL(file);
-}
-
-async function submitImgRead() {
-  if (!uploadedImgB64) {
-    toast("请先上传图片～");
-    return;
-  }
-  var resultEl = document.getElementById("imgread-result");
-  resultEl.innerHTML = aiCard("imgread-stream");
-  document.getElementById("imgread-stream").innerHTML = "";
-  try {
-    var r = await fetch(`${WORKER_URL}/api/vision`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        image_base64: uploadedImgB64,
-        mime_type: "image/jpeg",
-        model: vlModel(),
-        prompt:
-          "这是一张图片。请：①列出图片中所有能看到的汉字 ②挑选3-5个适合小学生学习的汉字，分别解释拼音和意思 ③用生动可爱语言，适合1-6年级，加emoji。如果没有汉字就描述图片内容并教几个相关汉字。",
-      }),
-    });
-    if (!r.ok) {
-      var e2 = await r.json().catch(function () {
-        return {};
-      });
-      document.getElementById("imgread-stream").textContent =
-        "API错误：" + ((e2.error && e2.error.message) || r.status);
-      return;
-    }
-    var d = await r.json();
-    setAIText(
-      document.getElementById("imgread-stream"),
-      (d.choices &&
-        d.choices[0] &&
-        d.choices[0].message &&
-        d.choices[0].message.content) ||
-        "识别失败请重试"
-    );
-    addStar(2);
-    playSfx("star");
-  } catch (e) {
-    document.getElementById("imgread-stream").textContent = "网络错误请重试";
-  }
 }
 
 var MATCH_POOL = [
@@ -2552,7 +3571,6 @@ function selectMatch(side, idx) {
       if (matchScore >= 6) {
         setTimeout(function () {
           showWin("🎉", "全部配对成功！", "你认识这6个汉字了！");
-          addStar(5);
         }, 400);
       }
     } else {
@@ -2592,14 +3610,7 @@ var GUOXUE_ITEMS = {
     pageCount: 118,
     alt: "三字经",
   },
-  弟子规:
-    "弟子规，圣人训。\n 首孝悌，次谨信。\n 泛爱众，而亲仁。\n 有余力，则学文。\n 父母呼，应勿缓。\n 父母命，行勿懒。\n 父母教，须敬听。\n 父母责，须顺承。\n 冬则温，夏则凊。\n 晨则省，昏则定。\n 出必告，反必面。\n 居有常，业无变。\n 事虽小，勿擅为。\n 苟擅为，子道亏。\n 物虽小，勿私藏。\n 苟私藏，亲心伤。\n 亲所好，力为具。\n 亲所恶，谨为去。\n 身有伤，贻亲忧。\n 德有伤，贻亲羞。\n 亲爱我，孝何难。\n 亲憎我，孝方贤。\n 亲有过，谏使更。\n 怡吾色，柔吾声。\n 谏不入，悦复谏。\n 号泣随，挞无怨。\n 亲有疾，药先尝。\n 昼夜侍，不离床。\n 丧三年，常悲咽。\n 居处变，酒肉绝。\n 丧尽礼，祭尽诚。\n 事死者，如事生。\n 兄道友，弟道恭。\n 兄弟睦，孝在中。\n 财物轻，怨何生。\n 言语忍，忿自泯。\n 或饮食，或坐走。\n 长者先，幼者后。\n 长呼人，即代叫。\n 人不在，己即到。\n 称尊长，勿呼名。\n 对尊长，勿见能。\n 路遇长，疾趋揖。\n 长无言，退恭立。\n 骑下马，乘下车。\n 过犹待，百步余。\n 长者立，幼勿坐。\n 长者坐，命乃坐。\n 尊长前，声要低。\n 低不闻，却非宜。\n 进必趋，退必迟。\n 问起对，视勿移。\n 事诸父，如事父。\n 事诸兄，如事兄。\n 朝起早，夜眠迟。\n 老易至，惜此时。\n 晨必盥，兼漱口。\n 便溺回，辄净手。\n 冠必正，纽必结。\n 袜与履，俱紧切。\n 置冠服，有定位。\n 勿乱顿，致污秽。\n 衣贵洁，不贵华。\n 上循分，下称家。\n 对饮食，勿拣择。\n 食适可，勿过则。\n 年方少，勿饮酒。\n 饮酒醉，最为丑。\n 步从容，立端正。\n 揖深圆，拜恭敬。\n 勿践阈，勿跛倚。\n 勿箕踞，勿摇髀。\n 缓揭帘，勿有声。\n 宽转弯，勿触棱。\n 执虚器，如执盈。\n 入虚室，如有人。\n 事勿忙，忙多错。\n 勿畏难，勿轻略。\n 斗闹场，绝勿近。\n 邪僻事，绝勿问。\n 将入门，问孰存。\n 将上堂，声必扬。\n 人问谁，对以名。\n 吾与我，不分明。\n 用人物，须明求。\n 倘不问，即为偷。\n 借人物，及时还。\n 后有急，借不难。\n 凡出言，信为先。\n 诈与妄，奚可焉。\n 话说多，不如少。\n 惟其是，勿佞巧。\n 奸巧语，秽污词。\n 市井气，切戒之。\n 见未真，勿轻言。\n 知未的，勿轻传。\n 事非宜，勿轻诺。\n 苟轻诺，进退错。\n 凡道字，重且舒。\n 勿急疾，勿模糊。\n 彼说长，此说短。\n 不关己，莫闲管。\n 见人善，即思齐。\n 纵去远，以渐跻。\n 见人恶，即内省。\n 有则改，无加警。\n 唯德学，唯才艺。\n 不如人，当自砺。\n 若衣服，若饮食。\n 不如人，勿生戚。\n 闻过怒，闻誉乐。\n 损友来，益友却。\n 闻誉恐，闻过欣。\n 直谅士，渐相亲。\n 无心非，名为错。\n 有心非，名为恶。\n 过能改，归于无。\n 倘掩饰，增一辜。\n 凡是人，皆须爱。\n 天同覆，地同载。\n 行高者，名自高。\n 人所重，非貌高。\n 才大者，望自大。\n 人所服，非言大。\n 己有能，勿自私。\n 人所能，勿轻訾。\n 勿谄富，勿骄贫。\n 勿厌故，勿喜新。\n 人不闲，勿事搅。\n 人不安，勿话扰。\n 人有短，切莫揭。\n 人有私，切莫说。\n 道人善，即是善。\n 人知之，愈思勉。\n 扬人恶，即是恶。\n 疾之甚，祸且作。\n 善相劝，德皆建。\n 过不规，道两亏。\n 凡取与，贵分晓。\n 与宜多，取宜少。\n 将加人，先问己。\n 己不欲，即速已。\n 恩欲报，怨欲忘。\n 报怨短，报恩长。\n 待婢仆，身贵端。\n 虽贵端，慈而宽。\n 势服人，心不然。\n 理服人，方无言。\n 同是人，类不齐。\n 流俗众，仁者希。\n 果仁者，人多畏。\n 言不讳，色不媚。\n 能亲仁，无限好。\n 德日进，过日少。\n 不亲仁，无限害。\n 小人进，百事坏。\n 不力行，但学文。\n 长浮华，成何人。\n 但力行，不学文。\n 任己见，昧理真。\n 读书法，有三到。\n 心眼口，信皆要。\n 方读此，勿慕彼。\n 此未终，彼勿起。\n 宽为限，紧用功。\n 工夫到，滞塞通。\n 心有疑，随札记。\n 就人问，求确义。\n 房室清，墙壁净。\n 几案洁，笔砚正。\n 墨磨偏，心不端。\n 字不敬，心先病。\n 列典籍，有定处。\n 读看毕，还原处。\n 虽有急，卷束齐。\n 有缺坏，就补之。\n 非圣书，屏勿视。\n 蔽聪明，坏心志。\n 勿自暴，勿自弃。\n 圣与贤，可驯致。\n ",
-  千字文:
-    "天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。\n寒来暑往，秋收冬藏。闰余成岁，律吕调阳。",
 };
-
-delete GUOXUE_ITEMS["弟子规"];
-delete GUOXUE_ITEMS["千字文"];
 
 function openPoetry() {
   openModal("ov-poetry");
@@ -2828,11 +3839,7 @@ function changePoetryPage(delta) {
   renderPoetryPagination();
 }
 
-function isPoetryBreakPunctuation(char) {
-  return "，。！？；：、,.!?;:“”‘’（）()《》〈〉【】〔〕—…·".indexOf(char) !== -1;
-}
-
-function renderPoetryLine(line, pinyin, shouldBreakAfterPunctuation) {
+function renderPoetryLine(line, pinyin) {
   var chars = String(line || "")
     .replace(/\s/g, "")
     .split("");
@@ -2854,18 +3861,52 @@ function renderPoetryLine(line, pinyin, shouldBreakAfterPunctuation) {
           '<span class="poetry-tianzigrid"><span>' +
           escapeHtml(char) +
           "</span></span>" +
-          "</span>" +
-          (shouldBreakAfterPunctuation &&
-          isPoetryBreakPunctuation(char) &&
-          index < chars.length - 1
-            ? '<span class="poetry-line-break"></span>'
-            : "")
+          "</span>"
         );
       })
       .join("") +
     "</div>" +
     "</div>"
   );
+}
+
+function getSongPoetryRowCapacity() {
+  if (window.innerWidth < 400) return 5;
+  if (window.innerWidth <= 600) return 7;
+  if (window.innerWidth <= 900) return 12;
+  return 18;
+}
+
+function splitSongPoetryRows(lines) {
+  var text = (lines || []).join("").replace(/\s/g, "");
+  var capacity = getSongPoetryRowCapacity();
+  var noLineStart = "，。！？；：、）》】”’";
+  var noLineEnd = "（《【“‘";
+  var rows = [];
+  var start = 0;
+
+  while (start < text.length) {
+    var end = Math.min(start + capacity, text.length);
+
+    while (
+      end < text.length &&
+      noLineStart.indexOf(text.charAt(end)) !== -1
+    ) {
+      end += 1;
+    }
+    if (
+      end < text.length &&
+      end > start + 1 &&
+      noLineEnd.indexOf(text.charAt(end - 1)) !== -1
+    ) {
+      end -= 1;
+    }
+
+    rows.push(text.slice(start, end));
+    start = end;
+  }
+
+  return rows;
 }
 
 function showPoetryDetailByButton(btn) {
@@ -2877,9 +3918,13 @@ function showPoetryDetail(poemId) {
     return String(item.id) === String(poemId);
   });
   if (!poem) return;
-  var lines = poem.content || [];
-  var pinyin = poem.pinyin || [];
-  var shouldBreakAfterPunctuation = poemHasType(poem, "song");
+  var isSongPoem = poemHasType(poem, "song");
+  var lines = isSongPoem
+    ? splitSongPoetryRows(poem.content || [])
+    : poem.content || [];
+  var pinyin = isSongPoem
+    ? lines.map(getPoetryLinePinyinParts)
+    : poem.pinyin || [];
   document.getElementById("poetry-list").innerHTML = "";
   document.getElementById("poetry-pagination").innerHTML = "";
   document.getElementById("poetry-ai").innerHTML = "";
@@ -2892,17 +3937,24 @@ function showPoetryDetail(poemId) {
     '<div class="poetry-detail-meta">' +
     escapeHtml(poem.author || "") +
     "</div>" +
+    favoriteButtonHtml(
+      {
+        type: "poem",
+        key: [poem.title || "", poem.author || ""].join("|"),
+        title: poem.title,
+        meta: poem.author || "古诗",
+      },
+      "togglePoetryFavorite('" + escapeAttr(String(poem.id)) + "')"
+    ) +
     '<button class="btn-primary poetry-read-btn" data-poem-id="' +
     escapeHtml(String(poem.id)) +
     '" onclick="playPoetryTextByButton(this)">朗读诗词</button>' +
-    '<div class="poetry-lines">' +
+    '<div class="poetry-lines' +
+    (isSongPoem ? " poetry-lines-song" : "") +
+    '">' +
     lines
       .map(function (line, index) {
-        return renderPoetryLine(
-          line,
-          pinyin[index],
-          shouldBreakAfterPunctuation
-        );
+        return renderPoetryLine(line, pinyin[index]);
       })
       .join("") +
     "</div>" +
@@ -3687,7 +4739,6 @@ function startStrokeQuiz() {
       updateStrokeProgress(d);
       showWin("✅", "描红完成！", "继续学习下一个字吧！", advanceStrokeChar);
       markLearned(d.char);
-      addStar(2);
     },
   });
 }
@@ -3711,7 +4762,6 @@ function showStrokeAnimation() {
       strokeStep = d.count;
       updateStrokeProgress(d);
       markLearned(d.char);
-      addStar(2);
     },
   });
 }
@@ -3828,4 +4878,3 @@ async function loadStrokeAI() {
 }
 
 initDailyChar();
-applyTheme();
