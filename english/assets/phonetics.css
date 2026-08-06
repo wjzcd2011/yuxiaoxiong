@@ -1,0 +1,457 @@
+.phonetics-heading {
+  align-items: center;
+}
+
+.phonetics-heading p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.phonetics-tip {
+  max-width: 340px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #b9d3ff;
+  border-radius: 7px;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  font-size: 12px;
+}
+
+.phonetic-group {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.phonetic-group > header {
+  min-height: 58px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.phonetic-group > header h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.phonetic-group > header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.phonetic-group > header small {
+  margin-left: auto;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.phonetic-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.phonetic-card {
+  position: relative;
+  min-height: 126px;
+  padding: 15px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.phonetic-card:nth-child(6n) {
+  border-right: 0;
+}
+
+.phonetic-card:hover {
+  background: var(--green-soft);
+}
+
+.phonetic-card:active {
+  transform: translateY(1px);
+}
+
+.phonetic-card > svg {
+  position: absolute;
+  top: 13px;
+  right: 12px;
+  color: var(--green);
+  opacity: 0.72;
+}
+
+.phonetic-symbol {
+  color: var(--green-dark);
+  font-family: "Times New Roman", serif;
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.phonetic-card strong {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.phonetic-card small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 1080px) {
+  .phonetic-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .phonetic-card:nth-child(6n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .phonetic-card:nth-child(4n) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 740px) {
+  .phonetics-heading {
+    align-items: stretch;
+  }
+
+  .phonetics-tip {
+    max-width: none;
+  }
+
+  .phonetic-group > header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .phonetic-group > header span {
+    width: 100%;
+    order: 3;
+  }
+
+  .phonetic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .phonetic-card {
+    min-height: 114px;
+  }
+
+  .phonetic-card:nth-child(4n) {
+    border-right: 1px solid var(--line);
+  }
+
+  .phonetic-card:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+.phonetic-section + .phonetic-section {
+  border-top: 1px solid var(--line);
+}
+
+.phonetic-section > h4 {
+  margin: 0;
+  padding: 10px 16px;
+  color: var(--green-dark);
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.phonetic-card {
+  padding: 0;
+  display: block;
+}
+
+.phonetic-card:active {
+  transform: none;
+}
+
+.phonetic-sound {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--green);
+  background: #fff;
+  cursor: pointer;
+}
+
+.phonetic-sound:hover {
+  color: #fff;
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.phonetic-open {
+  width: 100%;
+  min-height: 125px;
+  padding: 20px 48px 16px 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.phonetic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #24324a73;
+}
+
+.phonetic-dialog {
+  width: min(720px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 24px 70px #24324a42;
+}
+
+.phonetic-dialog > header {
+  min-height: 86px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+
+.phonetic-dialog > header span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.phonetic-dialog > header h2 {
+  margin: 3px 0 0;
+  color: var(--green-dark);
+  font-family: "Times New Roman", serif;
+  font-size: 34px;
+}
+
+.phonetic-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phonetic-header-sound {
+  color: var(--green);
+}
+
+.phonetic-header-sound:hover {
+  color: #fff;
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.phonetic-dialog-body {
+  padding: 20px;
+}
+
+.phonetic-main-sound {
+  min-height: 42px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: var(--green);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.phonetic-main-sound:hover {
+  background: var(--green-dark);
+}
+
+.phonetic-video {
+  width: 100%;
+  max-height: 390px;
+  margin-top: 0;
+  display: block;
+  border-radius: 7px;
+  background: #182033;
+}
+
+.phonetic-examples {
+  margin-top: 20px;
+}
+
+.phonetic-examples h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.phonetic-examples > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.phonetic-examples button {
+  min-height: 76px;
+  height: auto;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--green-dark);
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.phonetic-examples button:hover {
+  border-color: #b9d3ff;
+  background: var(--green-soft);
+}
+
+.phonetic-examples button > svg {
+  flex: 0 0 auto;
+}
+
+.phonetic-examples button > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.phonetic-example-word {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  justify-content: center;
+  gap: 8px !important;
+  padding-right: 12px;
+  border-right: 1px solid var(--line);
+}
+
+.phonetic-example-word > svg {
+  color: var(--green);
+}
+
+.phonetic-example-word > span {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
+}
+
+.phonetic-example-meaning {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 4px !important;
+  align-self: stretch;
+  align-content: center;
+}
+
+.phonetic-example-meaning em {
+  padding: 2px 7px;
+  border-radius: 10px;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.phonetic-examples button strong {
+  color: var(--green-dark);
+  font-size: 15px;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
+}
+
+.phonetic-examples button span span {
+  color: var(--muted);
+  font-family: "Times New Roman", serif;
+  font-size: 12px;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
+}
+
+.phonetic-examples button small {
+  overflow: visible;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+}
+
+@media (max-width: 740px) {
+  .phonetic-overlay {
+    align-items: end;
+    padding: 0;
+  }
+
+  .phonetic-dialog {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .phonetic-dialog-body {
+    padding: 16px;
+  }
+
+  .phonetic-video {
+    max-height: 48vh;
+  }
+
+  .phonetic-examples > div {
+    grid-template-columns: 1fr;
+  }
+}

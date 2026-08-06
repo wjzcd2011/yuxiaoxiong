@@ -1,0 +1,350 @@
+.help-page {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.help-hero {
+  min-height: 136px;
+  padding: 24px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.help-hero h2 {
+  margin: 5px 0 8px;
+  color: var(--ink);
+  font-size: clamp(22px, 2.3vw, 30px);
+}
+
+.help-hero p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.help-stats {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.help-stats strong {
+  min-width: 84px;
+  padding: 13px 15px;
+  color: var(--green);
+  font-size: 22px;
+  text-align: center;
+}
+
+.help-stats strong + strong {
+  border-left: 1px solid var(--line);
+}
+
+.help-stats small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.help-route-panel {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(420px, .9fr) minmax(0, 1.1fr);
+  gap: 14px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.help-route-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.help-route-tabs button {
+  min-height: 42px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.help-route-tabs button:hover {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.help-route-tabs button.active {
+  color: #fff;
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.help-route-result {
+  min-width: 0;
+  padding: 2px 8px;
+}
+
+.help-route-result > span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.help-route-result > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.help-route-result strong {
+  color: var(--green-dark);
+  font-size: 13px;
+}
+
+.help-route-result b {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.help-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.help-topic-grid {
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.help-topic-grid button {
+  min-height: 112px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-content: center;
+  gap: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.help-topic-grid button:hover,
+.help-topic-grid button.active {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.help-topic-grid button.active {
+  box-shadow: inset 3px 0 var(--green);
+}
+
+.help-topic-grid button > span {
+  grid-row: 1 / span 2;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--green);
+  background: var(--surface);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.help-topic-grid strong {
+  font-size: 15px;
+}
+
+.help-topic-grid small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.help-detail {
+  padding: 25px 24px;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.help-detail h3 {
+  margin: 5px 0 7px;
+  color: var(--ink);
+  font-size: 23px;
+}
+
+.help-detail-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.help-detail ol {
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+  list-style: none;
+}
+
+.help-detail li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 11px;
+}
+
+.help-detail li > span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--green);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.help-detail li strong {
+  display: block;
+  margin: 4px 0 5px;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.help-detail li p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.help-module-section {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.help-module-section h3 {
+  margin: 4px 0 13px;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.help-module-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.help-module-grid button {
+  min-height: 58px;
+  padding: 9px 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.help-module-grid button:hover {
+  color: var(--green-dark);
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.help-module-grid strong,
+.help-module-grid small {
+  display: block;
+}
+
+.help-module-grid strong {
+  font-size: 13px;
+}
+
+.help-module-grid small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.help-module-grid svg {
+  flex: 0 0 auto;
+  color: var(--green);
+}
+
+@media (max-width: 1080px) {
+  .help-route-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .help-module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 740px) {
+  .help-hero {
+    padding: 20px 16px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .help-stats strong {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .help-route-tabs,
+  .help-topic-grid,
+  .help-module-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .help-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .help-detail {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .help-route-tabs,
+  .help-topic-grid,
+  .help-module-grid {
+    grid-template-columns: 1fr;
+  }
+}

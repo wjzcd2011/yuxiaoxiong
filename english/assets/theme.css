@@ -1,0 +1,450 @@
+:root {
+  --green-dark: color-mix(in srgb, var(--green) 78%, #000);
+  --green-soft: color-mix(in srgb, var(--green) 12%, #fff);
+}
+
+.theme-mode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.theme-mode-options button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.theme-mode-options button.active {
+  color: #fff;
+  background: var(--green);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--green) 25%, transparent);
+}
+
+.theme-color-setting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-color-setting input[type="color"] {
+  width: 54px;
+  height: 38px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.theme-color-setting output {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  color: #f5f5f5;
+  background: #000;
+  --ink: #f5f5f5;
+  --muted: #b3b3b3;
+  --line: #363636;
+  --surface: #191919;
+  --green-dark: color-mix(in srgb, var(--green) 75%, #fff);
+  --green-soft: color-mix(in srgb, var(--green) 20%, #111);
+  --blue: #211d2b;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app-shell {
+  color: var(--ink);
+  background: #000;
+}
+
+html[data-theme="dark"] :where(
+  .sidebar,
+  .settings-dialog,
+  .icon-button,
+  .search,
+  .branch,
+  .detail-panel,
+  .summary-strip,
+  .learning-grid,
+  .lesson-row,
+  .lesson-words > button,
+  .speak-button,
+  .root-switcher button,
+  .stage-tabs button,
+  .mastery button,
+  .mini-options button,
+  .library-table > button,
+  .dictionary-results article,
+  .dictionary-word button,
+  .grammar-levels button,
+  .grammar-terms button,
+  .grammar-examples > article,
+  .grammar-translation-list > article,
+  .grammar-translation-input input,
+  .grammar-translation-input button,
+  .grammar-example-head button,
+  .grammar-translation-feedback button,
+  .grammar-choices button,
+  .choices button,
+  .quiz-card,
+  .record-summary,
+  .record-list
+) {
+  color: var(--ink);
+  background-color: #111;
+}
+
+html[data-theme="dark"] :where(button, select, input, output) {
+  color: var(--ink);
+}
+
+html[data-theme="dark"] :where(select, input) {
+  border-color: var(--line);
+  background-color: #111;
+}
+
+html[data-theme="dark"] :where(.branch:hover, .lesson-words > button:hover, .library-table > button:hover) {
+  background-color: #1d1d1d;
+}
+
+html[data-theme="dark"] .settings-overlay {
+  background: #0009;
+}
+
+html[data-theme="dark"] .reset-progress {
+  color: #ff9999;
+  border-color: #713b46;
+  background: #2a1820;
+}
+
+html[data-theme="dark"] :where(
+  .settings-dialog h2,
+  .settings-fields > label > span,
+  .topbar h1,
+  .panel-head h2,
+  .page-heading h2,
+  .quiz-card h2,
+  .grammar-lesson h3,
+  .grammar-section h4,
+  .dictionary-empty strong,
+  .record-summary strong
+) {
+  color: var(--ink);
+}
+
+html[data-theme="dark"] :where(
+  .section-label,
+  .settings-fields small,
+  .quiz-meta,
+  .quiz-card > p,
+  .quiz-parts,
+  .quiz-phonetic,
+  .count,
+  .decomp,
+  .sample-words,
+  .dictionary-meta,
+  .grammar-total
+) {
+  color: var(--muted);
+}
+
+html[data-theme="dark"] :where(
+  .branch.active,
+  .lesson-words > button.selected,
+  .grammar-topics > button.active,
+  .grammar-choices button.selected,
+  .choices button.selected
+) {
+  border-color: var(--green);
+  background-color: var(--green-soft);
+}
+
+html[data-theme="dark"] :where(
+  .choices button.correct,
+  .grammar-choices button.correct,
+  .mini-options button.correct
+) {
+  color: var(--green-dark);
+  border-color: var(--green);
+  background-color: var(--green-soft);
+}
+
+html[data-theme="dark"] :where(
+  .choices button.wrong,
+  .grammar-choices button.wrong
+) {
+  color: #ff9c9c;
+  border-color: #d85b5b;
+  background-color: #2b1515;
+}
+
+html[data-theme="dark"] :where(
+  .grammar-concept,
+  .grammar-word-hint,
+  .grammar-mistake,
+  .quiz-explain,
+  .grammar-translation-feedback
+) {
+  color: var(--ink) !important;
+  background-color: #191919;
+}
+
+html[data-theme="dark"] .theme-mode-options {
+  background: #080808;
+}
+
+/* Dark theme component layer. These rules intentionally outrank legacy
+   component styles that still contain hard-coded light colors. */
+html[data-theme="dark"] .library-table > button,
+html[data-theme="dark"] .phonetic-card,
+html[data-theme="dark"] .phonetic-section > h4,
+html[data-theme="dark"] .phonetic-sound,
+html[data-theme="dark"] .phonetic-dialog,
+html[data-theme="dark"] .phonetic-examples button,
+html[data-theme="dark"] .quiz-range-options button,
+html[data-theme="dark"] .starter-overview,
+html[data-theme="dark"] .starter-tab,
+html[data-theme="dark"] .starter-card,
+html[data-theme="dark"] .starter-tabs button,
+html[data-theme="dark"] .starter-words button,
+html[data-theme="dark"] .starter-example,
+html[data-theme="dark"] .starter-practice,
+html[data-theme="dark"] .starter-examples article,
+html[data-theme="dark"] .starter-practice article,
+html[data-theme="dark"] .starter-grammar-nav,
+html[data-theme="dark"] .starter-grammar-hero,
+html[data-theme="dark"] .starter-grammar-panel,
+html[data-theme="dark"] .starter-grammar-speaking,
+html[data-theme="dark"] .starter-grammar-tabs button,
+html[data-theme="dark"] .starter-grammar-examples article,
+html[data-theme="dark"] .starter-grammar-examples button,
+html[data-theme="dark"] .starter-grammar-swaps button,
+html[data-theme="dark"] .starter-grammar-options button,
+html[data-theme="dark"] .bridge-details-toggle,
+html[data-theme="dark"] .grammar-knowledge > article,
+html[data-theme="dark"] .grammar-rule-example,
+html[data-theme="dark"] .grammar-lesson,
+html[data-theme="dark"] .grammar-concept-list > div {
+  color: var(--ink) !important;
+  background: #111 !important;
+}
+
+html[data-theme="dark"] .library-table > button:hover,
+html[data-theme="dark"] .phonetic-card:hover,
+html[data-theme="dark"] .quiz-range-options button:hover,
+html[data-theme="dark"] .starter-tab:hover,
+html[data-theme="dark"] .starter-tabs button:hover,
+html[data-theme="dark"] .starter-words button:hover,
+html[data-theme="dark"] .starter-grammar-tabs button:hover,
+html[data-theme="dark"] .starter-grammar-swaps button:hover,
+html[data-theme="dark"] .bridge-details-toggle:hover {
+  color: var(--ink) !important;
+  border-color: var(--green) !important;
+  background: #1c1c1c !important;
+}
+
+html[data-theme="dark"] .grammar-topics > button:hover {
+  color: var(--ink) !important;
+  background: #1c1c1c !important;
+}
+
+html[data-theme="dark"] .starter-tab.is-active,
+html[data-theme="dark"] .starter-tabs button.active,
+html[data-theme="dark"] .starter-grammar-tabs button.active,
+html[data-theme="dark"] .quiz-range-options button.active {
+  color: #fff !important;
+  border-color: var(--green) !important;
+  background: var(--green-soft) !important;
+  box-shadow: inset 3px 0 var(--green);
+}
+
+html[data-theme="dark"] .quiz-range-options button.active {
+  background: var(--green) !important;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .phonetic-open,
+html[data-theme="dark"] .starter-main,
+html[data-theme="dark"] .starter-layout,
+html[data-theme="dark"] .starter-grid,
+html[data-theme="dark"] .grammar-knowledge,
+html[data-theme="dark"] .phonetic-grid {
+  color: var(--ink);
+  background: transparent !important;
+}
+
+html[data-theme="dark"] .phonetic-card strong,
+html[data-theme="dark"] .phonetic-open strong,
+html[data-theme="dark"] .phonetic-examples button small,
+html[data-theme="dark"] .starter-overview h2,
+html[data-theme="dark"] .starter-card-header h3,
+html[data-theme="dark"] .starter-main h3,
+html[data-theme="dark"] .starter-word,
+html[data-theme="dark"] .starter-words strong,
+html[data-theme="dark"] .starter-examples strong,
+html[data-theme="dark"] .starter-practice strong,
+html[data-theme="dark"] .starter-grammar-nav h3,
+html[data-theme="dark"] .starter-grammar-hero h3,
+html[data-theme="dark"] .starter-grammar-panel h4,
+html[data-theme="dark"] .starter-grammar-speaking h4,
+html[data-theme="dark"] .starter-grammar-examples strong,
+html[data-theme="dark"] .starter-grammar-swaps strong,
+html[data-theme="dark"] .starter-grammar-quiz h4,
+html[data-theme="dark"] .grammar-knowledge li,
+html[data-theme="dark"] .grammar-rule-example-en,
+html[data-theme="dark"] .grammar-rule-example p {
+  color: var(--ink) !important;
+}
+
+html[data-theme="dark"] .phonetic-card small,
+html[data-theme="dark"] .phonetic-examples button span span,
+html[data-theme="dark"] .starter-overview p,
+html[data-theme="dark"] .starter-card-header p,
+html[data-theme="dark"] .starter-tab span,
+html[data-theme="dark"] .starter-tabs small,
+html[data-theme="dark"] .starter-main > p,
+html[data-theme="dark"] .starter-words span,
+html[data-theme="dark"] .starter-words small,
+html[data-theme="dark"] .starter-examples span,
+html[data-theme="dark"] .starter-practice span,
+html[data-theme="dark"] .starter-grammar-tabs span,
+html[data-theme="dark"] .starter-grammar-tabs small,
+html[data-theme="dark"] .starter-grammar-hero p,
+html[data-theme="dark"] .starter-grammar-examples span,
+html[data-theme="dark"] .starter-grammar-examples small,
+html[data-theme="dark"] .starter-grammar-swaps small,
+html[data-theme="dark"] .starter-grammar-swaps span,
+html[data-theme="dark"] .grammar-rule-example-label,
+html[data-theme="dark"] .grammar-rule-example-zh,
+html[data-theme="dark"] .grammar-rule-example-note,
+html[data-theme="dark"] .bridge-details-toggle span {
+  color: var(--muted) !important;
+}
+
+html[data-theme="dark"] .starter-count,
+html[data-theme="dark"] .starter-pattern,
+html[data-theme="dark"] .starter-tag,
+html[data-theme="dark"] .starter-grammar-progress,
+html[data-theme="dark"] .starter-grammar-rule {
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+  background: var(--green-soft) !important;
+}
+
+html[data-theme="dark"] .starter-tip,
+html[data-theme="dark"] .starter-grammar-speaking,
+html[data-theme="dark"] .quiz-feedback.wrong,
+html[data-theme="dark"] .grammar-rule-example.is-contrast {
+  color: #ffd88a !important;
+  border-color: #6f5420 !important;
+  background: #251c0c !important;
+}
+
+html[data-theme="dark"] .grammar-rule-example.is-correct,
+html[data-theme="dark"] .starter-grammar-correction p.right,
+html[data-theme="dark"] .starter-grammar-options button.correct,
+html[data-theme="dark"] .quiz-feedback.correct {
+  color: #9ee7b1 !important;
+  border-color: #356846 !important;
+  background: #102619 !important;
+}
+
+html[data-theme="dark"] .grammar-rule-example.is-wrong,
+html[data-theme="dark"] .starter-grammar-correction p.wrong,
+html[data-theme="dark"] .starter-grammar-options button.wrong {
+  color: #ffaaa0 !important;
+  border-color: #7b3d36 !important;
+  background: #2b1513 !important;
+}
+
+html[data-theme="dark"] .starter-word,
+html[data-theme="dark"] .starter-words button,
+html[data-theme="dark"] .starter-grammar-examples article,
+html[data-theme="dark"] .starter-grammar-swaps button {
+  border-color: var(--line) !important;
+}
+
+html[data-theme="dark"] .starter-speak,
+html[data-theme="dark"] .starter-examples button {
+  color: var(--green-dark) !important;
+  border-color: var(--line) !important;
+  background: #191919 !important;
+}
+
+html[data-theme="dark"] .bridge-change {
+  color: #ffaaa0 !important;
+  background: #2b1513 !important;
+}
+
+html[data-theme="dark"] .progress-track,
+html[data-theme="dark"] .learning-mark {
+  background: #303030 !important;
+}
+
+html[data-theme="dark"] .phonetic-overlay {
+  background: #000a;
+}
+
+html[data-theme="dark"] .branch.active,
+html[data-theme="dark"] .lesson-words > button.selected,
+html[data-theme="dark"] .grade-tabs button.active,
+html[data-theme="dark"] .mini-options button.selected,
+html[data-theme="dark"] .grammar-choices button.selected,
+html[data-theme="dark"] .choices button.selected {
+  color: var(--ink) !important;
+  border-color: var(--green) !important;
+  background: var(--green-soft) !important;
+}
+
+html[data-theme="dark"] .parts i[data-kind="suffix"],
+html[data-theme="dark"] .detail-parts i[data-kind="suffix"] {
+  color: #ffd88a !important;
+  border-color: #6f5420 !important;
+  background: #251c0c !important;
+}
+
+html[data-theme="dark"] .parts i[data-kind="base"],
+html[data-theme="dark"] .detail-parts i[data-kind="base"] {
+  color: #c8adff !important;
+  border-color: #624d83 !important;
+  background: #21192e !important;
+}
+
+html[data-theme="dark"] .mastery button.active,
+html[data-theme="dark"] .mastery button.active.learning {
+  color: var(--ink) !important;
+  background: #211711 !important;
+}
+
+html[data-theme="dark"] .mastery button.active.mastered {
+  color: #fff !important;
+  background: var(--green) !important;
+}
+
+html[data-theme="dark"] .primary-action,
+html[data-theme="dark"] .next-button,
+html[data-theme="dark"] .stage-tabs button.active,
+html[data-theme="dark"] .theme-mode-options button.active {
+  color: #fff;
+  background-color: var(--green);
+}
+
+@media (max-width: 740px) {
+  .theme-color-setting {
+    justify-content: space-between;
+  }
+}
